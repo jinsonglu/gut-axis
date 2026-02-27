@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>肠道九轴 · 交互医学知识体系</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+:root {
+  --ink:#12100a; --gold:#c8922a; --cream:#f9f4ea; --paper:#fdfaf3;
+  --muted:#9a8a72; --border:#e0cca8;
+  --lung:#4e7fa0; --heart:#a84040; --liver:#3a7055; --kidney:#4a4880;
+  --spleen:#9a7a20; --triple:#6a4a8a; --skin:#7a5a3a; --bone:#3a6070; --thyroid:#5a7a3a;
+  --fm-bg:#eef4fc; --fm-col:#2a5090; --tcm-bg:#fdf3e4; --tcm-col:#7a4808;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--cream);font-family:'Noto Sans SC',sans-serif;color:var(--ink);overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(180,150,100,0.025) 41px);}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:200;background:rgba(249,244,234,0.96);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;gap:16px;height:50px;}
+.brand{font-family:'Noto Serif SC',serif;font-size:13px;letter-spacing:2px;color:var(--gold);font-weight:600;white-space:nowrap;}
+.breadcrumb{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);}
+.bc-item{cursor:pointer;transition:color .2s;padding:2px 4px;}
+.bc-item:hover{color:var(--ink);}
+.bc-item.current{color:var(--ink);font-weight:500;}
+.bc-sep{opacity:.35;}
+
+/* VIEWS */
+.view{display:none;position:relative;z-index:1;animation:fadeUp .25s ease both;}
+.view.on{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ HOME ══ */
+#home{max-width:1080px;margin:0 auto;padding:44px 28px 64px;}
+.h-eyebrow{font-size:10px;letter-spacing:5px;color:var(--gold);text-align:center;margin-bottom:14px;}
+.h-title{font-family:'Noto Serif SC',serif;font-size:40px;font-weight:900;letter-spacing:8px;text-align:center;margin-bottom:8px;}
+.h-sub{font-size:12px;color:var(--muted);letter-spacing:2px;text-align:center;margin-bottom:48px;}
+.root-wrap{display:flex;justify-content:center;margin-bottom:32px;}
+.root-box{background:var(--ink);color:#e8d8a8;padding:16px 52px;text-align:center;position:relative;cursor:default;}
+.root-box::after{content:'';position:absolute;inset:4px;border:1px solid rgba(200,146,42,.28);pointer-events:none;}
+.root-label{font-size:9px;letter-spacing:4px;color:var(--gold);margin-bottom:4px;}
+.root-main{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:900;letter-spacing:6px;}
+.root-desc{font-size:10px;color:rgba(232,216,168,.5);margin-top:4px;letter-spacing:1px;}
+
+/* immune banner */
+.imm-tile{background:linear-gradient(135deg,#192a19,#101e10);padding:14px 22px;margin-bottom:10px;
+  display:flex;align-items:center;gap:18px;cursor:pointer;border:1px solid transparent;transition:border-color .2s;}
+.imm-tile:hover{border-color:rgba(154,200,154,.3);}
+.imm-char{font-family:'Noto Serif SC',serif;font-size:38px;font-weight:900;color:rgba(154,200,154,.15);flex-shrink:0;}
+.imm-text h3{font-family:'Noto Serif SC',serif;font-size:14px;letter-spacing:2px;color:#b8e0b8;margin-bottom:3px;}
+.imm-text p{font-size:11px;color:rgba(154,200,154,.6);line-height:1.7;}
+.imm-arrow{margin-left:auto;font-size:12px;color:rgba(154,200,154,.35);flex-shrink:0;letter-spacing:1px;}
+
+/* axes grid */
+.grid8{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;}
+.tile{border:1px solid var(--border);background:var(--paper);padding:16px 18px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+.tile::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;transition:width .2s;}
+.tile:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(0,0,0,.08);}
+.tile:hover::before{width:6px;}
+.tile.lung::before{background:var(--lung);}
+.tile.skin::before{background:var(--skin);}
+.tile.heart::before{background:var(--heart);}
+.tile.liver::before{background:var(--liver);}
+.tile.spleen::before{background:var(--spleen);}
+.tile.kidney::before{background:var(--kidney);}
+.tile.bone::before{background:var(--bone);}
+.tile.thyroid::before{background:var(--thyroid);}
+.tile.triple::before{background:var(--triple);}
+.t-num{font-size:10px;opacity:.2;letter-spacing:1px;margin-bottom:5px;}
+.t-zh{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:600;letter-spacing:3px;margin-bottom:3px;}
+.t-en{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.t-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.ttag{font-size:9px;padding:1px 7px;border-radius:1px;letter-spacing:.5px;}
+.ttag.tcm{background:rgba(200,146,42,.1);color:#6a4808;border:1px solid rgba(200,146,42,.3);}
+.ttag.fm{background:rgba(74,114,164,.08);color:#1a3460;border:1px solid rgba(74,114,164,.25);}
+.t-hint{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.t-hint::after{content:'→';opacity:.4;transition:transform .2s,opacity .2s;}
+.tile:hover .t-hint::after{transform:translateX(3px);opacity:.8;}
+.triple-tile{grid-column:1/-1;display:grid;grid-template-columns:160px 1fr 1fr 1fr;gap:16px;align-items:start;}
+.tj-preview{padding-left:14px;border-left:1px solid var(--border);}
+.tj-preview h5{font-size:11px;color:var(--triple);letter-spacing:1px;margin-bottom:3px;}
+.tj-preview p{font-size:10px;color:var(--muted);line-height:1.6;}
+
+/* ══ AXIS VIEW ══ */
+#axis-view{max-width:960px;margin:0 auto;padding:36px 28px 60px;}
+.ax-header{display:flex;align-items:flex-start;gap:18px;margin-bottom:32px;padding-bottom:22px;border-bottom:1px solid var(--border);}
+.ax-bar{width:5px;border-radius:2px;min-height:72px;flex-shrink:0;margin-top:3px;}
+.ax-titles{flex:1;}
+.ax-zh{font-family:'Noto Serif SC',serif;font-size:28px;font-weight:900;letter-spacing:4px;margin-bottom:3px;}
+.ax-en{font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
+.ax-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.back{font-size:11px;color:var(--muted);cursor:pointer;padding:5px 12px;border:1px solid var(--border);background:transparent;transition:all .2s;flex-shrink:0;margin-top:4px;}
+.back:hover{color:var(--ink);border-color:var(--ink);}
+.card-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.card{border:1px solid var(--border);background:var(--paper);cursor:pointer;overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s;}
+.card:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(0,0,0,.07);border-color:#c4aa80;}
+.card-top{padding:12px 16px 9px;border-bottom:1px solid rgba(224,204,168,.5);display:flex;align-items:center;justify-content:space-between;}
+.badge{font-size:9px;letter-spacing:2px;font-weight:700;padding:2px 8px;border-radius:1px;}
+.badge.fm{background:rgba(74,114,164,.1);color:#2a5090;}
+.badge.tcm{background:rgba(200,146,42,.1);color:#7a4808;}
+.badge.cli{background:rgba(80,140,80,.1);color:#2a6030;}
+.badge.test{background:rgba(100,80,140,.1);color:#4a3070;}
+.card-arr{font-size:11px;color:var(--muted);transition:transform .2s;}
+.card:hover .card-arr{transform:translateX(3px);}
+.card-body{padding:11px 16px 13px;}
+.card-title{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:600;letter-spacing:1px;margin-bottom:5px;}
+.card-preview{font-size:11px;color:var(--muted);line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* ══ DETAIL VIEW ══ */
+#detail-view{max-width:780px;margin:0 auto;padding:36px 28px 80px;}
+.d-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.d-badge{font-size:9px;letter-spacing:3px;font-weight:700;padding:2px 10px;border-radius:1px;margin-bottom:8px;display:inline-block;}
+.d-title{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:900;letter-spacing:2px;line-height:1.3;}
+.d-parent{font-size:11px;color:var(--muted);margin-top:5px;letter-spacing:1px;}
+.d-body{}
+
+/* illustration box */
+.illus{background:var(--paper);border:1px solid var(--border);padding:20px;margin:20px 0;text-align:center;}
+.illus svg{max-width:100%;height:auto;}
+.illus-caption{font-size:11px;color:var(--muted);margin-top:10px;letter-spacing:1px;}
+.illus-story{font-size:12px;color:#3a2a10;line-height:1.8;margin-top:8px;padding:10px 14px;background:rgba(200,146,42,.06);border-left:2px solid var(--gold);}
+
+.nq-box{background:var(--tcm-bg);border-left:3px solid var(--gold);padding:12px 18px;margin:18px 0;font-family:'Noto Serif SC',serif;}
+.nq-text{font-size:16px;color:#4a2808;letter-spacing:2px;line-height:1.7;margin-bottom:4px;}
+.nq-src{font-size:10px;color:var(--muted);}
+.fm-box{background:var(--fm-bg);border-left:3px solid #4a72a4;padding:12px 18px;margin:18px 0;}
+.fm-box p{font-size:12.5px;line-height:1.9;color:#1a2a4a;}
+.kp{margin:16px 0;}
+.kp-row{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(224,204,168,.35);}
+.kp-row:last-child{border-bottom:none;}
+.kp-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:7px;}
+.kp-text{font-size:12.5px;line-height:1.8;}
+.cli-rows{margin:16px 0;}
+.cli-row{padding:10px 14px;margin-bottom:7px;background:var(--paper);border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:border-color .2s;}
+.cli-row:hover{border-color:#c4aa80;}
+.cli-s{font-size:12.5px;font-weight:500;}
+.cli-a{font-size:11px;color:var(--muted);}
+.related{margin-top:32px;padding-top:18px;border-top:1px solid var(--border);}
+.rel-label{font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:10px;font-weight:600;}
+.rel-chips{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{padding:5px 13px;font-size:11px;letter-spacing:1px;border:1px solid var(--border);background:var(--paper);cursor:pointer;transition:all .2s;}
+.chip:hover{background:var(--gold);color:white;border-color:var(--gold);}
+
+/* stagger */
+.sg>*{animation:fadeUp .35s ease both;}
+.sg>*:nth-child(1){animation-delay:.00s}.sg>*:nth-child(2){animation-delay:.05s}
+.sg>*:nth-child(3){animation-delay:.10s}.sg>*:nth-child(4){animation-delay:.15s}
+.sg>*:nth-child(5){animation-delay:.20s}.sg>*:nth-child(6){animation-delay:.25s}
+.sg>*:nth-child(7){animation-delay:.30s}.sg>*:nth-child(8){animation-delay:.35s}
+.sg>*:nth-child(9){animation-delay:.40s}
+
+@media(max-width:680px){
+  .grid8{grid-template-columns:1fr 1fr;}
+  .triple-tile{grid-template-columns:1fr!important;}
+  .tj-preview{border-left:none;border-top:1px solid var(--border);padding:8px 0 0;}
+  .card-grid{grid-template-columns:1fr;}
+  #home,#axis-view,#detail-view{padding:22px 14px 48px;}
+  .h-title{font-size:26px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">李璐的重新养育手记</div>
+  <div style="font-size:12px;color:var(--muted);letter-spacing:1px;">· 肠道九轴知识体系</div>
+  <div class="breadcrumb" id="bc">
+    <span class="bc-item current" onclick="goHome()">首页</span>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="view on" id="home">
+  <div style="max-width:1080px;margin:0 auto;padding:44px 28px 64px;">
+    <div class="h-eyebrow">功能医学 × 黄帝内经 · 交互知识体系</div>
+    <div class="h-title">肠道九轴系统</div>
+    <div class="h-sub">点击任意轴 · 层层深入 · 每个知识配图解 · 小学生也能看懂</div>
+    <div class="root-wrap">
+      <div class="root-box">
+        <div class="root-label">核心根基</div>
+        <div class="root-main">肠　　道</div>
+        <div class="root-desc">脾胃为后天之本 · 70%免疫组织在这里 · 第二大脑</div>
+      </div>
+    </div>
+    <div class="imm-tile" onclick="openAxis('immune')">
+      <div class="imm-char">免</div>
+      <div class="imm-text">
+        <h3>免疫肠轴（本体）· 所有轴的地基</h3>
+        <p>正气存内，邪不可干 · GALT是人体免疫的大本营 · 70-80%免疫细胞住在肠道</p>
+      </div>
+      <div class="imm-arrow">点击深入 →</div>
+    </div>
+    <div class="grid8 sg">
+      <div class="tile lung" onclick="openAxis('lung')">
+        <div class="t-num">第一轴</div><div class="t-zh">肺肠轴</div>
+        <div class="t-en">Gut-Lung Axis</div>
+        <div class="t-tags"><span class="ttag tcm">肺与大肠相表里</span><span class="ttag fm">SCFA→肺免疫</span></div>
+        <div class="t-hint">反复咳嗽先看肠</div>
+      </div>
+      <div class="tile skin" onclick="openAxis('skin')">
+        <div class="t-num">第二轴</div><div class="t-zh">皮肤肠轴</div>
+        <div class="t-en">Gut-Skin Axis</div>
+        <div class="t-tags"><span class="ttag tcm">肺开窍于皮毛</span><span class="ttag fm">肠漏即皮漏</span></div>
+        <div class="t-hint">湿疹根在肠道</div>
+      </div>
+      <div class="tile heart" onclick="openAxis('heart')">
+        <div class="t-num">第三轴</div><div class="t-zh">脑肠轴</div>
+        <div class="t-en">Gut-Brain Axis</div>
+        <div class="t-tags"><span class="ttag tcm">心与小肠相表里</span><span class="ttag fm">90%信号肠→脑</span></div>
+        <div class="t-hint">情绪从肠道出发</div>
+      </div>
+      <div class="tile liver" onclick="openAxis('liver')">
+        <div class="t-num">第四轴</div><div class="t-zh">肝肠轴</div>
+        <div class="t-en">Gut-Liver Axis</div>
+        <div class="t-tags"><span class="ttag tcm">肝与胆相表里</span><span class="ttag fm">门静脉直连</span></div>
+        <div class="t-hint">肠道毒素先过肝</div>
+      </div>
+      <div class="tile spleen" onclick="openAxis('spleen')">
+        <div class="t-num">第五轴</div><div class="t-zh">脾胃轴</div>
+        <div class="t-en">Gut-Digestive Core</div>
+        <div class="t-tags"><span class="ttag tcm">脾胃为后天之本</span><span class="ttag fm">消化酶·菌群</span></div>
+        <div class="t-hint">核心枢纽</div>
+      </div>
+      <div class="tile kidney" onclick="openAxis('kidney')">
+        <div class="t-num">第六轴</div><div class="t-zh">肾肠轴</div>
+        <div class="t-en">Gut-Kidney Axis</div>
+        <div class="t-tags"><span class="ttag tcm">肾与膀胱相表里</span><span class="ttag fm">尿毒素·皮质醇</span></div>
+        <div class="t-hint">遗尿与肾上腺</div>
+      </div>
+      <div class="tile bone" onclick="openAxis('bone')">
+        <div class="t-num">第七轴</div><div class="t-zh">骨骼肠轴</div>
+        <div class="t-en">Gut-Bone Axis</div>
+        <div class="t-tags"><span class="ttag tcm">肾主骨生髓</span><span class="ttag fm">K2引钙入骨</span></div>
+        <div class="t-hint">补钙不如先修肠</div>
+      </div>
+      <div class="tile thyroid" onclick="openAxis('thyroid')">
+        <div class="t-num">第八轴</div><div class="t-zh">甲状腺肠轴</div>
+        <div class="t-en">Gut-Thyroid Axis</div>
+        <div class="t-tags"><span class="ttag tcm">命门之火</span><span class="ttag fm">T3在肠道激活</span></div>
+        <div class="t-hint">甲状腺从肠道调</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr;margin-top:10px;">
+      <div class="tile triple triple-tile" onclick="openAxis('triple')">
+        <div><div class="t-num">第九轴</div><div class="t-zh">三焦</div><div class="t-en">Triple Warmer</div>
+          <div class="t-tags"><span class="ttag tcm">三焦主气化</span><span class="ttag fm">线粒体网络</span></div>
+          <div class="t-hint" style="margin-top:8px">贯穿所有轴</div></div>
+        <div class="tj-preview"><h5>上焦如雾</h5><p>心肺 · ATP能量输出 · 氧化磷酸化</p></div>
+        <div class="tj-preview"><h5>中焦如沤</h5><p>脾胃肝 · 消化代谢 · 气血化生</p></div>
+        <div class="tj-preview"><h5>下焦如渎</h5><p>肾肠 · 细胞自噬 · 排毒清废</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AXIS VIEW -->
+<div class="view" id="axis-view">
+  <div style="max-width:960px;margin:0 auto;padding:36px 28px 60px;">
+    <div class="ax-header">
+      <div class="ax-bar" id="ax-bar"></div>
+      <div class="ax-titles">
+        <div class="ax-zh" id="ax-zh"></div>
+        <div class="ax-en" id="ax-en"></div>
+        <div class="ax-tags" id="ax-tags"></div>
+      </div>
+      <button class="back" onclick="goHome()">← 返回总览</button>
+    </div>
+    <div class="card-grid sg" id="ax-cards"></div>
+  </div>
+</div>
+
+<!-- DETAIL VIEW -->
+<div class="view" id="detail-view">
+  <div style="max-width:780px;margin:0 auto;padding:36px 28px 80px;">
+    <div class="d-top">
+      <div>
+        <div class="d-badge" id="d-badge"></div>
+        <div class="d-title" id="d-title"></div>
+        <div class="d-parent" id="d-parent"></div>
+      </div>
+      <button class="back" onclick="goAxis()">← 返回</button>
+    </div>
+    <div class="d-body" id="d-body"></div>
+    <div class="related" id="d-related"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// SVG ILLUSTRATIONS (each explains a concept visually)
+// ═══════════════════════════════════════════
+
+const SVG = {
+  // 肺肠轴: 工厂(肠道)→运输车(血液)→肺部工厂
+  lung_fm: `<svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- intestine factory -->
+    <rect x="20" y="60" width="120" height="80" rx="8" fill="#eef4fc" stroke="#4e7fa0" stroke-width="1.5"/>
+    <text x="80" y="48" text-anchor="middle" font-size="11" fill="#4e7fa0" font-family="Noto Sans SC">肠道工厂</text>
+    <text x="80" y="98" text-anchor="middle" font-size="22">🏭</text>
+    <text x="80" y="120" text-anchor="middle" font-size="10" fill="#4e7fa0">生产</text>
+    <text x="80" y="133" text-anchor="middle" font-size="10" fill="#4e7fa0">SCFA丁酸</text>
+    <!-- arrow + truck -->
+    <line x1="145" y1="100" x2="250" y2="100" stroke="#c8922a" stroke-width="2" stroke-dasharray="6,3"/>
+    <text x="197" y="90" text-anchor="middle" font-size="20">🚚</text>
+    <text x="197" y="118" text-anchor="middle" font-size="10" fill="#c8922a">血液运输</text>
+    <!-- lung -->
+    <rect x="255" y="60" width="120" height="80" rx="8" fill="#eef4fc" stroke="#4e7fa0" stroke-width="1.5"/>
+    <text x="315" y="48" text-anchor="middle" font-size="11" fill="#4e7fa0">肺部</text>
+    <text x="315" y="98" text-anchor="middle" font-size="22">🫁</text>
+    <text x="315" y="118" text-anchor="middle" font-size="10" fill="#3a7055">Treg细胞激活</text>
+    <text x="315" y="131" text-anchor="middle" font-size="10" fill="#3a7055">✓ 炎症受控</text>
+    <!-- broken path -->
+    <line x1="145" y1="155" x2="250" y2="155" stroke="#a84040" stroke-width="2" stroke-dasharray="4,3"/>
+    <text x="197" y="148" text-anchor="middle" font-size="9" fill="#a84040">肠道坏了→</text>
+    <rect x="255" y="143" width="120" height="30" rx="5" fill="rgba(168,64,64,.08)" stroke="#a84040" stroke-width="1"/>
+    <text x="315" y="162" text-anchor="middle" font-size="10" fill="#a84040">😰 慢性肺炎症</text>
+    <text x="80" y="170" text-anchor="middle" font-size="10" fill="#a84040">菌群失调</text>
+    <!-- antibiotics warning -->
+    <rect x="400" y="60" width="100" height="80" rx="8" fill="rgba(168,64,64,.06)" stroke="#a84040" stroke-width="1" stroke-dasharray="4,2"/>
+    <text x="450" y="48" text-anchor="middle" font-size="10" fill="#a84040">⚠️ 抗生素悖论</text>
+    <text x="450" y="92" text-anchor="middle" font-size="18">💊→💔</text>
+    <text x="450" y="112" text-anchor="middle" font-size="9.5" fill="#a84040">杀菌同时</text>
+    <text x="450" y="125" text-anchor="middle" font-size="9.5" fill="#a84040">破坏肠道</text>
+  </svg>`,
+
+  // 肺肠轴TCM: 肺↔大肠表里图
+  lung_tcm: `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="140" cy="100" rx="100" ry="70" fill="rgba(200,146,42,.07)" stroke="var(--gold)" stroke-width="1.5"/>
+    <ellipse cx="280" cy="100" rx="100" ry="70" fill="rgba(200,146,42,.07)" stroke="var(--gold)" stroke-width="1.5"/>
+    <text x="140" y="75" text-anchor="middle" font-size="28">🫁</text>
+    <text x="140" y="105" text-anchor="middle" font-family="Noto Serif SC" font-size="14" fill="#4a2808">肺</text>
+    <text x="140" y="123" text-anchor="middle" font-size="10" fill="#7a4808">宣发肃降</text>
+    <text x="140" y="138" text-anchor="middle" font-size="10" fill="#7a4808">主皮毛开鼻</text>
+    <text x="280" y="75" text-anchor="middle" font-size="28">🌀</text>
+    <text x="280" y="105" text-anchor="middle" font-family="Noto Serif SC" font-size="14" fill="#4a2808">大肠</text>
+    <text x="280" y="123" text-anchor="middle" font-size="10" fill="#7a4808">传导糟粕</text>
+    <text x="280" y="138" text-anchor="middle" font-size="10" fill="#7a4808">主降</text>
+    <text x="210" y="95" text-anchor="middle" font-family="Noto Serif SC" font-size="13" fill="#c8922a">表里</text>
+    <path d="M190,85 Q210,70 230,85" fill="none" stroke="#c8922a" stroke-width="1.5" marker-end="url(#arr)"/>
+    <path d="M230,115 Q210,130 190,115" fill="none" stroke="#c8922a" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <defs>
+      <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#c8922a"/></marker>
+      <marker id="arr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#c8922a"/></marker>
+    </defs>
+    <text x="210" y="180" text-anchor="middle" font-size="11" fill="#7a4808">肺气不降 → 便秘｜大肠积滞 → 咳喘</text>
+  </svg>`,
+
+  // 脑肠轴: 脑↔肠对话
+  brain_fm: `<svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg">
+    <rect x="15" y="50" width="130" height="110" rx="10" fill="#fdf3f3" stroke="#a84040" stroke-width="1.5"/>
+    <text x="80" y="38" text-anchor="middle" font-size="11" fill="#a84040">大脑</text>
+    <text x="80" y="88" text-anchor="middle" font-size="30">🧠</text>
+    <text x="80" y="115" text-anchor="middle" font-size="10" fill="#a84040">情绪·行为</text>
+    <text x="80" y="130" text-anchor="middle" font-size="10" fill="#a84040">注意力·睡眠</text>
+    <!-- nerve -->
+    <rect x="175" y="60" width="130" height="90" rx="8" fill="rgba(200,146,42,.06)" stroke="#c8922a" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <text x="240" y="90" text-anchor="middle" font-size="11" fill="#c8922a">迷走神经</text>
+    <text x="240" y="108" text-anchor="middle" font-size="10" fill="#7a5808">80%信号 ↑ 肠→脑</text>
+    <text x="240" y="123" text-anchor="middle" font-size="10" fill="#7a5808">20%信号 ↓ 脑→肠</text>
+    <text x="240" y="140" text-anchor="middle" font-size="18">🔗</text>
+    <!-- gut -->
+    <rect x="335" y="50" width="130" height="110" rx="10" fill="#eef4fc" stroke="#4e7fa0" stroke-width="1.5"/>
+    <text x="400" y="38" text-anchor="middle" font-size="11" fill="#4e7fa0">肠道</text>
+    <text x="400" y="88" text-anchor="middle" font-size="30">🦠</text>
+    <text x="400" y="113" text-anchor="middle" font-size="10" fill="#4e7fa0">产90%血清素</text>
+    <text x="400" y="127" text-anchor="middle" font-size="10" fill="#4e7fa0">产50%多巴胺前体</text>
+    <!-- mood icons -->
+    <text x="80" y="185" text-anchor="middle" font-size="11" fill="#a84040">肠好→😊 肠坏→😰</text>
+    <text x="400" y="185" text-anchor="middle" font-size="11" fill="#4e7fa0">快乐激素从肠来</text>
+  </svg>`,
+
+  // 肝肠轴: 海关检查站比喻
+  liver_fm: `<svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+    <text x="240" y="22" text-anchor="middle" font-size="12" fill="#3a7055">比喻：肠道是港口，门静脉是高速公路，肝脏是海关</text>
+    <rect x="15" y="40" width="110" height="80" rx="8" fill="#eef4fc" stroke="#4e7fa0" stroke-width="1.5"/>
+    <text x="70" y="65" text-anchor="middle" font-size="22">🚢</text>
+    <text x="70" y="88" text-anchor="middle" font-family="Noto Serif SC" font-size="12" fill="#4a2808">肠道港口</text>
+    <text x="70" y="104" text-anchor="middle" font-size="9.5" fill="#4e7fa0">吸收营养 + 毒素</text>
+    <!-- highway -->
+    <rect x="135" y="68" width="100" height="24" rx="4" fill="rgba(200,146,42,.1)" stroke="#c8922a" stroke-width="1"/>
+    <text x="185" y="85" text-anchor="middle" font-size="11" fill="#c8922a">门静脉高速路 →</text>
+    <!-- liver customs -->
+    <rect x="245" y="40" width="110" height="80" rx="8" fill="#f5f0e8" stroke="#c8922a" stroke-width="1.5"/>
+    <text x="300" y="65" text-anchor="middle" font-size="22">🏛️</text>
+    <text x="300" y="88" text-anchor="middle" font-family="Noto Serif SC" font-size="12" fill="#4a2808">肝脏海关</text>
+    <text x="300" y="104" text-anchor="middle" font-size="9.5" fill="#c8922a">Phase I/II 解毒</text>
+    <!-- body -->
+    <line x1="360" y1="80" x2="420" y2="80" stroke="#3a7055" stroke-width="2"/>
+    <text x="445" y="70" text-anchor="middle" font-size="22">🧒</text>
+    <text x="445" y="92" text-anchor="middle" font-size="9.5" fill="#3a7055">全身</text>
+    <!-- bad gut scenario -->
+    <text x="70" y="148" text-anchor="middle" font-size="10" fill="#a84040">肠漏 →</text>
+    <rect x="108" y="138" width="200" height="22" rx="4" fill="rgba(168,64,64,.08)" stroke="#a84040" stroke-width="1"/>
+    <text x="208" y="153" text-anchor="middle" font-size="10" fill="#a84040">大量毒素直冲肝脏 → 肝脏超负荷</text>
+    <text x="300" y="180" text-anchor="middle" font-size="10" fill="#a84040">⚠️ 转氨酶升高 · 脂肪肝 · 排毒障碍</text>
+  </svg>`,
+
+  // 脾胃轴: 食品加工厂
+  spleen_fm: `<svg viewBox="0 0 500 210" xmlns="http://www.w3.org/2000/svg">
+    <text x="250" y="20" text-anchor="middle" font-size="12" fill="#9a7a20">比喻：脾胃是食品加工厂，菌群是工人</text>
+    <!-- food input -->
+    <text x="50" y="85" text-anchor="middle" font-size="30">🍎🥦</text>
+    <text x="50" y="108" text-anchor="middle" font-size="10" fill="#9a7a20">食物原料</text>
+    <line x1="85" y1="90" x2="130" y2="90" stroke="#c8922a" stroke-width="2"/>
+    <!-- stomach -->
+    <rect x="133" y="55" width="90" height="70" rx="8" fill="#fdf3e4" stroke="#9a7a20" stroke-width="1.5"/>
+    <text x="178" y="84" text-anchor="middle" font-size="20">⚗️</text>
+    <text x="178" y="103" text-anchor="middle" font-family="Noto Serif SC" font-size="11" fill="#4a2808">胃</text>
+    <text x="178" y="118" text-anchor="middle" font-size="9" fill="#9a7a20">胃酸pH1.5</text>
+    <!-- intestine workers -->
+    <line x1="228" y1="90" x2="268" y2="90" stroke="#c8922a" stroke-width="2"/>
+    <rect x="271" y="55" width="100" height="70" rx="8" fill="#eef4fc" stroke="#4e7fa0" stroke-width="1.5"/>
+    <text x="321" y="82" text-anchor="middle" font-size="20">👷👷</text>
+    <text x="321" y="103" text-anchor="middle" font-family="Noto Serif SC" font-size="11" fill="#4a2808">肠道菌群</text>
+    <text x="321" y="118" text-anchor="middle" font-size="9" fill="#4e7fa0">产SCFA·合成VitK2</text>
+    <!-- output -->
+    <line x1="376" y1="90" x2="416" y2="90" stroke="#c8922a" stroke-width="2"/>
+    <rect x="419" y="55" width="60" height="70" rx="8" fill="rgba(58,112,85,.08)" stroke="#3a7055" stroke-width="1.5"/>
+    <text x="449" y="82" text-anchor="middle" font-size="18">✨</text>
+    <text x="449" y="100" text-anchor="middle" font-size="9.5" fill="#3a7055">精微</text>
+    <text x="449" y="114" text-anchor="middle" font-size="9.5" fill="#3a7055">营养吸收</text>
+    <!-- deficiency line -->
+    <text x="178" y="155" text-anchor="middle" font-size="10" fill="#a84040">胃酸不足 →</text>
+    <text x="321" y="155" text-anchor="middle" font-size="10" fill="#a84040">菌群失调(工人罢工) →</text>
+    <text x="449" y="155" text-anchor="middle" font-size="10" fill="#a84040">营养缺乏</text>
+    <text x="250" y="185" text-anchor="middle" font-size="11" fill="#9a7a20">「脾虚」= 工厂运转不良 = 孩子吃了也不长</text>
+  </svg>`,
+
+  // 骨骼肠轴: K2快递员
+  bone_fm: `<svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+    <text x="240" y="18" text-anchor="middle" font-size="12" fill="#3a6070">比喻：钙是砖块，VitK2是快递员，骨头是建筑工地</text>
+    <!-- gut makes K2 -->
+    <rect x="15" y="40" width="100" height="70" rx="8" fill="#eef4fc" stroke="#3a6070" stroke-width="1.5"/>
+    <text x="65" y="63" text-anchor="middle" font-size="18">🦠</text>
+    <text x="65" y="84" text-anchor="middle" font-size="10" fill="#3a6070">肠道菌群</text>
+    <text x="65" y="98" text-anchor="middle" font-size="9.5" fill="#3a6070">合成VitK2</text>
+    <!-- K2 delivery -->
+    <text x="165" y="72" text-anchor="middle" font-size="20">📦</text>
+    <text x="165" y="92" text-anchor="middle" font-size="9.5" fill="#c8922a">VitK2快递员</text>
+    <line x1="120" y1="75" x2="145" y2="75" stroke="#c8922a" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <!-- bone building site -->
+    <rect x="215" y="40" width="110" height="70" rx="8" fill="rgba(58,96,112,.07)" stroke="#3a6070" stroke-width="1.5"/>
+    <text x="270" y="68" text-anchor="middle" font-size="20">🏗️</text>
+    <text x="270" y="90" text-anchor="middle" font-family="Noto Serif SC" font-size="11" fill="#4a2808">骨头建筑工地</text>
+    <text x="270" y="104" text-anchor="middle" font-size="9.5" fill="#3a6070">骨钙素被激活</text>
+    <line x1="190" y1="75" x2="213" y2="75" stroke="#c8922a" stroke-width="1.5"/>
+    <!-- bad scenario: calcium in wrong place -->
+    <rect x="355" y="40" width="110" height="70" rx="8" fill="rgba(168,64,64,.07)" stroke="#a84040" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <text x="410" y="65" text-anchor="middle" font-size="18">😱</text>
+    <text x="410" y="85" text-anchor="middle" font-size="10" fill="#a84040">没有K2时</text>
+    <text x="410" y="99" text-anchor="middle" font-size="9.5" fill="#a84040">钙沉积血管壁</text>
+    <text x="410" y="112" text-anchor="middle" font-size="9.5" fill="#a84040">而非骨头</text>
+    <text x="270" y="150" text-anchor="middle" font-size="11" fill="#3a6070">肠道菌群 → 合成K2 → 引钙入骨 → 孩子长高</text>
+    <text x="270" y="172" text-anchor="middle" font-size="10.5" fill="#a84040">❌ 菌群失调 → K2不足 → 补钙多年身高不长</text>
+  </svg>`,
+
+  // 脑肠轴TCM: 心与小肠
+  brain_tcm: `<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="130" cy="100" rx="100" ry="68" fill="rgba(168,64,64,.06)" stroke="#a84040" stroke-width="1.5"/>
+    <ellipse cx="290" cy="100" rx="100" ry="68" fill="rgba(200,146,42,.07)" stroke="#c8922a" stroke-width="1.5"/>
+    <text x="130" y="73" text-anchor="middle" font-size="24">❤️</text>
+    <text x="130" y="100" text-anchor="middle" font-family="Noto Serif SC" font-size="14" fill="#4a2808">心</text>
+    <text x="130" y="118" text-anchor="middle" font-size="10" fill="#a84040">君主之官</text>
+    <text x="130" y="133" text-anchor="middle" font-size="10" fill="#a84040">神明出焉</text>
+    <text x="130" y="148" text-anchor="middle" font-size="10" fill="#a84040">开窍于舌</text>
+    <text x="290" y="73" text-anchor="middle" font-size="24">🌀</text>
+    <text x="290" y="100" text-anchor="middle" font-family="Noto Serif SC" font-size="14" fill="#4a2808">小肠</text>
+    <text x="290" y="118" text-anchor="middle" font-size="10" fill="#7a4808">受盛之官</text>
+    <text x="290" y="133" text-anchor="middle" font-size="10" fill="#7a4808">化物出焉</text>
+    <text x="290" y="148" text-anchor="middle" font-size="10" fill="#7a4808">吸收精微养心</text>
+    <text x="210" y="93" text-anchor="middle" font-family="Noto Serif SC" font-size="12" fill="#c8922a">表里</text>
+    <path d="M185,82 Q210,68 232,82" fill="none" stroke="#c8922a" stroke-width="1.5"/>
+    <path d="M232,118 Q210,132 185,118" fill="none" stroke="#c8922a" stroke-width="1.5"/>
+    <text x="210" y="185" text-anchor="middle" font-size="11" fill="#7a4808">舌为心之苗 → 舌诊看脑神经功能</text>
+  </svg>`,
+
+  // 免疫: 城堡防御
+  immune_fm: `<svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg">
+    <text x="250" y="18" text-anchor="middle" font-size="12" fill="#3a7055">比喻：肠道是一座城堡，免疫细胞是守卫士兵</text>
+    <!-- castle wall = gut lining -->
+    <rect x="140" y="50" width="220" height="100" rx="0" fill="rgba(58,112,85,.06)" stroke="#3a7055" stroke-width="2"/>
+    <rect x="140" y="35" width="30" height="25" rx="2" fill="#3a7055"/>
+    <rect x="190" y="35" width="30" height="25" rx="2" fill="#3a7055"/>
+    <rect x="240" y="35" width="30" height="25" rx="2" fill="#3a7055"/>
+    <rect x="290" y="35" width="30" height="25" rx="2" fill="#3a7055"/>
+    <rect x="330" y="35" width="30" height="25" rx="2" fill="#3a7055"/>
+    <text x="250" y="110" text-anchor="middle" font-size="22">🏰</text>
+    <text x="250" y="135" text-anchor="middle" font-size="10" fill="#3a7055">GALT · sIgA防线 · Treg平衡</text>
+    <!-- good: soldiers -->
+    <text x="80" y="95" text-anchor="middle" font-size="20">🦠</text>
+    <text x="80" y="115" text-anchor="middle" font-size="9.5" fill="#a84040">病菌来袭</text>
+    <line x1="100" y1="95" x2="135" y2="95" stroke="#a84040" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <text x="132" y="82" font-size="16">🛡️</text>
+    <text x="115" y="68" text-anchor="middle" font-size="9.5" fill="#3a7055">sIgA守卫</text>
+    <!-- right side: leaky wall -->
+    <line x1="365" y1="95" x2="400" y2="95" stroke="#a84040" stroke-width="1.5" stroke-dasharray="3,2"/>
+    <text x="415" y="88" text-anchor="middle" font-size="16">💀</text>
+    <text x="415" y="108" text-anchor="middle" font-size="9.5" fill="#a84040">肠漏</text>
+    <!-- broken wall indicator -->
+    <rect x="355" y="70" width="8" height="40" rx="0" fill="rgba(168,64,64,.2)" stroke="#a84040" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="250" y="175" text-anchor="middle" font-size="11" fill="#3a7055">城墙完整(正气足) → 百毒不侵 | 城墙破损(肠漏) → 百病丛生</text>
+  </svg>`,
+
+  // 甲状腺肠轴: 汽车发动机激活
+  thyroid_fm: `<svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+    <text x="240" y="18" text-anchor="middle" font-size="12" fill="#5a7a3a">比喻：T4是未启动的车，T3是发动起来的车，肠道是钥匙</text>
+    <!-- thyroid gland -->
+    <rect x="20" y="50" width="100" height="80" rx="8" fill="rgba(90,122,58,.07)" stroke="#5a7a3a" stroke-width="1.5"/>
+    <text x="70" y="78" text-anchor="middle" font-size="18">🦋</text>
+    <text x="70" y="97" text-anchor="middle" font-family="Noto Serif SC" font-size="12" fill="#4a2808">甲状腺</text>
+    <text x="70" y="113" text-anchor="middle" font-size="9.5" fill="#5a7a3a">分泌T4</text>
+    <text x="70" y="126" text-anchor="middle" font-size="18">🚗💤</text>
+    <!-- arrow to gut -->
+    <line x1="125" y1="90" x2="180" y2="90" stroke="#c8922a" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <text x="152" y="82" text-anchor="middle" font-size="9.5" fill="#c8922a">血液</text>
+    <!-- gut activates -->
+    <rect x="183" y="50" width="110" height="80" rx="8" fill="#eef4fc" stroke="#4e7fa0" stroke-width="1.5"/>
+    <text x="238" y="73" text-anchor="middle" font-size="18">🗝️</text>
+    <text x="238" y="93" text-anchor="middle" font-family="Noto Serif SC" font-size="11" fill="#4a2808">肠道脱碘酶</text>
+    <text x="238" y="108" text-anchor="middle" font-size="9.5" fill="#4e7fa0">（需要硒）</text>
+    <text x="238" y="122" text-anchor="middle" font-size="9.5" fill="#4e7fa0">T4 → T3</text>
+    <!-- activated T3 -->
+    <line x1="298" y1="90" x2="345" y2="90" stroke="#3a7055" stroke-width="2"/>
+    <rect x="348" y="50" width="110" height="80" rx="8" fill="rgba(58,112,85,.08)" stroke="#3a7055" stroke-width="1.5"/>
+    <text x="403" y="73" text-anchor="middle" font-size="22">🚗💨</text>
+    <text x="403" y="98" text-anchor="middle" font-family="Noto Serif SC" font-size="12" fill="#4a2808">活性T3</text>
+    <text x="403" y="113" text-anchor="middle" font-size="9.5" fill="#3a7055">代谢加速</text>
+    <text x="403" y="126" text-anchor="middle" font-size="9.5" fill="#3a7055">温暖有活力</text>
+    <text x="238" y="165" text-anchor="middle" font-size="10" fill="#a84040">❌ 肠道菌群坏了 → 钥匙失灵 → 怕冷·便秘·长不高</text>
+  </svg>`,
+
+  // 肾肠轴: 污水处理厂
+  kidney_fm: `<svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+    <text x="240" y="18" text-anchor="middle" font-size="12" fill="#4a4880">比喻：肠道是污水源头，肾脏是污水处理厂</text>
+    <!-- gut produces toxins -->
+    <rect x="15" y="50" width="110" height="80" rx="8" fill="#eef4fc" stroke="#4a4880" stroke-width="1.5"/>
+    <text x="70" y="73" text-anchor="middle" font-size="20">🦠</text>
+    <text x="70" y="94" text-anchor="middle" font-family="Noto Serif SC" font-size="11" fill="#4a2808">肠道菌群</text>
+    <text x="70" y="110" text-anchor="middle" font-size="9.5" fill="#4a4880">代谢产物</text>
+    <text x="70" y="124" text-anchor="middle" font-size="9.5" fill="#4a4880">部分有毒</text>
+    <!-- pipe to kidney -->
+    <rect x="135" y="83" width="100" height="14" rx="4" fill="rgba(74,72,128,.1)" stroke="#4a4880" stroke-width="1"/>
+    <text x="185" y="95" text-anchor="middle" font-size="9.5" fill="#4a4880">门静脉→血液</text>
+    <!-- kidney factory -->
+    <rect x="245" y="50" width="110" height="80" rx="8" fill="rgba(74,72,128,.07)" stroke="#4a4880" stroke-width="1.5"/>
+    <text x="300" y="73" text-anchor="middle" font-size="20">🏭</text>
+    <text x="300" y="94" text-anchor="middle" font-family="Noto Serif SC" font-size="11" fill="#4a2808">肾脏</text>
+    <text x="300" y="110" text-anchor="middle" font-size="9.5" fill="#4a4880">过滤尿毒素</text>
+    <text x="300" y="124" text-anchor="middle" font-size="9.5" fill="#4a4880">肾单位承压</text>
+    <!-- overload warning -->
+    <rect x="375" y="50" width="90" height="80" rx="8" fill="rgba(168,64,64,.07)" stroke="#a84040" stroke-width="1" stroke-dasharray="4,2"/>
+    <text x="420" y="73" text-anchor="middle" font-size="20">⚠️</text>
+    <text x="420" y="94" text-anchor="middle" font-size="10" fill="#a84040">超负荷</text>
+    <text x="420" y="108" text-anchor="middle" font-size="9.5" fill="#a84040">慢性肾损伤</text>
+    <text x="240" y="165" text-anchor="middle" font-size="10.5" fill="#4a4880">肠道健康 → 减少毒素产生 → 肾脏轻松 → 保护肾功能</text>
+    <text x="240" y="183" text-anchor="middle" font-size="10" fill="#a84040">❌ 菌群失调 → 硫酸吲哚酚增加 → 肾脏慢性损伤</text>
+  </svg>`,
+
+  // 三焦: 三层楼房
+  triple_vis: `<svg viewBox="0 0 500 220" xmlns="http://www.w3.org/2000/svg">
+    <text x="250" y="18" text-anchor="middle" font-size="12" fill="#6a4a8a">比喻：三焦是一栋三层楼的能量管理大厦</text>
+    <!-- building outline -->
+    <rect x="80" y="30" width="340" height="170" rx="6" fill="rgba(106,74,138,.04)" stroke="#6a4a8a" stroke-width="1.5"/>
+    <!-- floor 1: 上焦 -->
+    <rect x="90" y="38" width="320" height="48" rx="4" fill="rgba(78,127,160,.08)" stroke="#4e7fa0" stroke-width="1"/>
+    <text x="145" y="60" text-anchor="middle" font-family="Noto Serif SC" font-size="13" fill="#4a2808">上焦如雾</text>
+    <text x="145" y="76" text-anchor="middle" font-size="9.5" fill="#4e7fa0">心肺 · ATP输出</text>
+    <text x="330" y="60" text-anchor="middle" font-size="18">🌫️❤️🫁</text>
+    <text x="330" y="76" text-anchor="middle" font-size="9.5" fill="#4e7fa0">能量弥散全身</text>
+    <!-- floor 2: 中焦 -->
+    <rect x="90" y="93" width="320" height="48" rx="4" fill="rgba(154,122,32,.08)" stroke="#9a7a20" stroke-width="1"/>
+    <text x="145" y="115" text-anchor="middle" font-family="Noto Serif SC" font-size="13" fill="#4a2808">中焦如沤</text>
+    <text x="145" y="131" text-anchor="middle" font-size="9.5" fill="#9a7a20">脾胃肝 · 消化代谢</text>
+    <text x="330" y="112" text-anchor="middle" font-size="18">⚗️🍎</text>
+    <text x="330" y="131" text-anchor="middle" font-size="9.5" fill="#9a7a20">食物→气血化生</text>
+    <!-- floor 3: 下焦 -->
+    <rect x="90" y="148" width="320" height="45" rx="4" fill="rgba(74,72,128,.08)" stroke="#4a4880" stroke-width="1"/>
+    <text x="145" y="168" text-anchor="middle" font-family="Noto Serif SC" font-size="13" fill="#4a2808">下焦如渎</text>
+    <text x="145" y="184" text-anchor="middle" font-size="9.5" fill="#4a4880">肾肠 · 排废清毒</text>
+    <text x="330" y="166" text-anchor="middle" font-size="18">🚿♻️</text>
+    <text x="330" y="184" text-anchor="middle" font-size="9.5" fill="#4a4880">细胞自噬·淋巴引流</text>
+    <!-- energy flow -->
+    <text x="55" y="62" text-anchor="middle" font-size="20">⬇️</text>
+    <text x="55" y="118" text-anchor="middle" font-size="20">⬇️</text>
+    <text x="55" y="172" text-anchor="middle" font-size="20">⬇️</text>
+    <text x="55" y="30" text-anchor="middle" font-size="10" fill="#6a4a8a">气</text>
+    <text x="55" y="45" text-anchor="middle" font-size="10" fill="#6a4a8a">化</text>
+  </svg>`,
+
+  // 皮肤肠轴: 管道比喻
+  skin_fm: `<svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+    <text x="240" y="18" text-anchor="middle" font-size="12" fill="#7a5a3a">比喻：肠道和皮肤是同一条管道的两端</text>
+    <!-- healthy pipe -->
+    <text x="70" y="55" text-anchor="middle" font-size="10" fill="#3a7055">✓ 健康状态</text>
+    <rect x="20" y="65" width="90" height="55" rx="8" fill="rgba(58,112,85,.07)" stroke="#3a7055" stroke-width="1.5"/>
+    <text x="65" y="88" text-anchor="middle" font-size="16">🛡️</text>
+    <text x="65" y="106" text-anchor="middle" font-size="9.5" fill="#3a7055">肠道屏障完整</text>
+    <rect x="195" y="65" width="90" height="55" rx="8" fill="rgba(58,112,85,.07)" stroke="#3a7055" stroke-width="1.5"/>
+    <text x="240" y="88" text-anchor="middle" font-size="16">😊</text>
+    <text x="240" y="106" text-anchor="middle" font-size="9.5" fill="#3a7055">皮肤光滑</text>
+    <line x1="115" y1="93" x2="192" y2="93" stroke="#3a7055" stroke-width="2"/>
+    <text x="153" y="85" text-anchor="middle" font-size="9.5" fill="#3a7055">菌群平衡</text>
+    <!-- leaky pipe -->
+    <text x="70" y="145" text-anchor="middle" font-size="10" fill="#a84040">✗ 肠漏状态</text>
+    <rect x="20" y="155" width="90" height="35" rx="8" fill="rgba(168,64,64,.07)" stroke="#a84040" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <text x="65" y="176" text-anchor="middle" font-size="9.5" fill="#a84040">肠道漏了 😰</text>
+    <line x1="115" y1="172" x2="192" y2="172" stroke="#a84040" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <text x="153" y="165" text-anchor="middle" font-size="9" fill="#a84040">抗原入血</text>
+    <rect x="195" y="155" width="90" height="35" rx="8" fill="rgba(168,64,64,.07)" stroke="#a84040" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <text x="240" y="176" text-anchor="middle" font-size="9.5" fill="#a84040">湿疹/荨麻疹 😰</text>
+    <!-- key insight -->
+    <rect x="330" y="55" width="140" height="140" rx="8" fill="rgba(200,146,42,.06)" stroke="#c8922a" stroke-width="1.5"/>
+    <text x="400" y="78" text-anchor="middle" font-family="Noto Serif SC" font-size="13" fill="#4a2808">关键洞见</text>
+    <text x="400" y="103" text-anchor="middle" font-size="11" fill="#c8922a">湿疹只在皮肤</text>
+    <text x="400" y="120" text-anchor="middle" font-size="11" fill="#c8922a">但根在肠道</text>
+    <text x="400" y="145" text-anchor="middle" font-size="22">🎯</text>
+    <text x="400" y="165" text-anchor="middle" font-size="10" fill="#7a4808">修肠 = 治皮</text>
+    <text x="400" y="182" text-anchor="middle" font-size="10" fill="#7a4808">治标 ≠ 治本</text>
+  </svg>`
+};
+
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+const DATA = {
+  immune: {
+    zh:'免疫肠轴（本体）', en:'Gut-Immune Axis · Foundation', color:'#2a7a3a',
+    tags:[{t:'tcm',v:'正气存内，邪不可干'},{t:'fm',v:'GALT · sIgA · Treg'}],
+    entries:[
+      { id:'immune-fm', type:'fm', title:'功能医学机制：城堡守卫理论',
+        preview:'GALT占全身70-80%免疫细胞，肠道是人体免疫的真正大本营',
+        illus: SVG.immune_fm,
+        caption:'肠道城堡：城墙完整=正气足，城墙破损=百病丛生',
+        story:'想象肠道是一座大城堡。城墙（肠道屏障）完整的时候，士兵（免疫细胞）站在城门口，坏人（细菌病毒）进不来，孩子健健康康。城墙一旦出现裂缝（肠漏），坏人就能钻进来，士兵们乱成一团，不该打的也开始打（过敏、自身免疫），孩子就开始各种生病。',
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>GALT（肠道相关淋巴组织）</strong>：占全身70-80%免疫细胞。Peyer's patches（派尔集合淋巴结）、肠系膜淋巴结、固有层淋巴细胞，三道防线。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>sIgA（分泌型免疫球蛋白A）</strong>：黏膜第一道防线，由肠道B细胞产生，中和病原体。sIgA低 = 城门没有卫兵 = 反复感染的根源。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>菌群训练Th1/Th2/Treg平衡</strong>：肠道菌群每天在「训练」免疫细胞。菌群多样性下降→Treg（和平使者）减少→Th2过度（过敏）或Th1/Th17过度（自身免疫）。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠漏触发全身炎症</strong>：紧密连接蛋白受损→LPS（内毒素）入血→慢性低度炎症→影响所有器官。这是「万病肠漏根」的机制。</div></div>
+        </div>`,
+        related:['immune-tcm','immune-clinical','immune-test']
+      },
+      { id:'immune-tcm', type:'tcm', title:'黄帝内经：正气即是免疫力',
+        preview:'正气存内，邪不可干——脾胃化生正气，四季脾旺不受邪',
+        illus: null,
+        content:`<div class="nq-box"><div class="nq-text">「正气存内，邪不可干；邪之所凑，其气必虚」</div><div class="nq-src">——《素问·刺法论》</div></div>
+        <div class="nq-box"><div class="nq-text">「四季脾旺不受邪」</div><div class="nq-src">——《金匮要略》</div></div>
+        <div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「正气」= 现代免疫力</strong>：正气充足=免疫监控精准，能识别外邪（病原体）而不误伤自身（不过敏、不自身免疫）。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>脾胃是正气的源泉</strong>：「脾为后天之本，气血生化之源」——脾胃运化水谷→化生气血→养正气。功能医学对应：消化吸收充足→营养支持免疫细胞生成。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>卫气 = sIgA</strong>：卫气行于体表，固护腠理，正是黏膜免疫sIgA的古典描述。卫气虚→腠理不固→外邪易侵。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「四季脾旺不受邪」</strong>：2000年前的「肠道免疫论」——只要脾胃（肠道）功能强健，一年四季都不容易生病。</div></div>
+        </div>`,
+        related:['immune-fm','immune-clinical']
+      },
+      { id:'immune-clinical', type:'cli', title:'临床切入点',
+        preview:'反复感染 · 过敏体质 · 自身免疫 · 疫苗应答差',
+        illus: null,
+        content:`<div class="cli-rows">
+          <div class="cli-row"><div class="cli-s">反复呼吸道感染（每年≥6次）</div><div class="cli-a">→ 检查sIgA · 菌群多样性</div></div>
+          <div class="cli-row"><div class="cli-s">多种过敏并存（食物+吸入+皮肤）</div><div class="cli-a">→ Th1/Th2失衡 · 肠漏评估</div></div>
+          <div class="cli-row"><div class="cli-s">自身免疫病（桥本、紫癜）</div><div class="cli-a">→ 肠道通透性 · 分子模拟</div></div>
+          <div class="cli-row"><div class="cli-s">疫苗应答差 / 抗体效价低</div><div class="cli-a">→ 肠道免疫基础薄弱</div></div>
+          <div class="cli-row"><div class="cli-s">长期抗生素使用史（>3次/年）</div><div class="cli-a">→ 菌群重建 · sIgA恢复</div></div>
+        </div>`,
+        related:['immune-fm','immune-test']
+      },
+      { id:'immune-test', type:'test', title:'检测切入点',
+        preview:'sIgA · 菌群多样性 · 食物不耐受IgG · 肠道通透性',
+        illus: null,
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>粪便sIgA</strong>：黏膜免疫核心指标。目标值：510-2040 μg/mL。低值=城门无守卫=反复感染根源。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>粪便菌群多样性（16S测序）</strong>：Shannon多样性指数>3.5为健康。重点关注双歧杆菌/拟杆菌比例，Akkermansia黏液层保护菌。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>食物不耐受IgG（96项）</strong>：慢性免疫激活的隐性来源。IgG延迟反应（6-72小时），与IgE即时过敏不同，家长往往察觉不到。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠道通透性（Occludin / Zonulin）</strong>：评估「肠漏」程度，是慢性炎症的根源指标。Zonulin升高=城墙有裂缝。</div></div>
+        </div>`,
+        related:['immune-fm','immune-clinical']
+      }
+    ]
+  },
+
+  lung: {
+    zh:'肺肠轴', en:'Gut-Lung Axis', color:'#4e7fa0',
+    tags:[{t:'tcm',v:'肺与大肠相表里'},{t:'fm',v:'SCFA→肺免疫'}],
+    entries:[
+      { id:'lung-fm', type:'fm', title:'功能医学机制：工厂运输链',
+        preview:'肠道菌群→SCFA→血液运输→激活肺部Treg细胞',
+        illus: SVG.lung_fm,
+        caption:'肠道工厂生产SCFA，用血液卡车运到肺部，激活肺部守卫细胞',
+        story:'肠道里的细菌就像一座小工厂，每天生产一种叫"丁酸"的保护物质（SCFA）。这个物质被血液这辆大卡车运到肺部，告诉肺部的守卫士兵"不要过度反应，保持冷静"。孩子每次用抗生素，这座工厂就被炸掉一部分，丁酸产量下降，肺部守卫失控，哮喘和过敏就越来越重。',
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>SCFA（短链脂肪酸）通路</strong>：丁酸、丙酸→血液→肺泡巨噬细胞和Treg细胞激活→抑制IL-4/IL-13（过敏炎症因子）→哮喘缓解。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠肺菌群迁徙理论</strong>：口-肠-肺菌群存在双向交流。肠道菌群失调时，条件致病菌可通过微误吸到达肺部，改变肺部微生物组，增加感染风险。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>抗生素悖论</strong>：抗生素→肠道菌群破坏→SCFA减少→肺Treg下降→下次感染更容易→再用抗生素→恶性循环。越用越弱的科学解释。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠漏-肺炎症通路</strong>：肠道通透性↑→LPS（内毒素）入血→激活肺部Toll样受体→IL-6/TNF-α↑→慢性肺炎症→哮喘易感性↑。</div></div>
+        </div>`,
+        related:['lung-tcm','lung-clinical','lung-test']
+      },
+      { id:'lung-tcm', type:'tcm', title:'黄帝内经：肺与大肠相表里',
+        preview:'治咳先通腑——2000年前医家已知肺肠同治',
+        illus: SVG.lung_tcm,
+        caption:'肺与大肠是一对表里关系，气机升降互相影响',
+        story:'黄帝内经说，肺和大肠就像一对亲兄弟。哥哥肺主管向上向外宣发，弟弟大肠主管向下传导糟粕。哥哥发气往上，弟弟通道往下——上下相通，气机才顺畅。如果弟弟（大肠）便秘堵了，哥哥（肺）的气就下不去，堵在上面就变成咳嗽；反过来，哥哥肺气虚了，弟弟大肠也会懒懒的，不爱动。',
+        content:`<div class="nq-box"><div class="nq-text">「肺与大肠相表里」<br>「肺主宣发肃降，开窍于鼻」</div><div class="nq-src">——《灵枢·本输》《素问·阴阳应象大论》</div></div>
+        <div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>气机升降理论</strong>：肺主降（宣发肃降），大肠主传（向下传导）。两者同向，共同维持气机下行。大肠不通→气机上逆→咳喘；肺气不宣→大肠失濡→便秘。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「培土生金」法</strong>：土=脾胃，金=肺。通过补脾胃（肠道）来加强肺功能，是治疗反复呼吸道感染的古典路径。对应功能医学：修复肠道菌群→提升肺部免疫。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>临床古法</strong>：「治咳先通腑」——凡咳嗽久治不愈，古代医家必问大便是否通畅。大便一通，咳嗽往往随之缓解。这是2000年前的「肺肠轴」实践。</div></div>
+        </div>`,
+        related:['lung-fm','lung-clinical']
+      },
+      { id:'lung-clinical', type:'cli', title:'临床切入点',
+        preview:'反复咳嗽 · 哮喘 · 过敏性鼻炎 · 抗生素后反复感染',
+        illus: null,
+        content:`<div class="cli-rows">
+          <div class="cli-row"><div class="cli-s">反复呼吸道感染（>6次/年）</div><div class="cli-a">→ 先查肠道菌群，不要先加抗生素</div></div>
+          <div class="cli-row"><div class="cli-s">儿童哮喘久治不愈</div><div class="cli-a">→ 食物不耐受IgG + 肠漏评估</div></div>
+          <div class="cli-row"><div class="cli-s">过敏性鼻炎反复</div><div class="cli-a">→ 培土生金：健脾+修肠+益生菌</div></div>
+          <div class="cli-row"><div class="cli-s">抗生素后更容易生病</div><div class="cli-a">→ 菌群重建（抗生素悖论）</div></div>
+          <div class="cli-row"><div class="cli-s">咳嗽伴便秘同时出现</div><div class="cli-a">→ 肺与大肠相表里，通腑宣肺</div></div>
+        </div>`,
+        related:['lung-fm','lung-test']
+      },
+      { id:'lung-test', type:'test', title:'检测切入点',
+        preview:'有机酸·粪便菌群·sIgA·食物不耐受IgG',
+        illus: null,
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>粪便菌群多样性 + 丁酸产量</strong>：核心指标。丁酸（Butyrate）是肺部免疫调节的关键燃料，丁酸菌减少=肺部保护力下降。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>粪便sIgA</strong>：黏膜免疫整体水平，低sIgA的孩子往往同时有反复肺部感染和肠道问题。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>食物不耐受IgG（96项）</strong>：特别关注乳制品、麸质——这两类是儿童慢性气道炎症最常见的食物触发因素。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>有机酸（OAT）</strong>：评估肠道菌群代谢状态，丁酸相关有机酸水平，以及念珠菌/细菌过度生长的标志物。</div></div>
+        </div>`,
+        related:['lung-fm','lung-clinical']
+      }
+    ]
+  },
+
+  skin: {
+    zh:'皮肤肠轴', en:'Gut-Skin Axis', color:'#7a5a3a',
+    tags:[{t:'tcm',v:'肺开窍于皮毛'},{t:'fm',v:'肠漏即皮漏'}],
+    entries:[
+      { id:'skin-fm', type:'fm', title:'功能医学机制：管道两端原理',
+        preview:'肠道和皮肤是同一条管道的两端，修好肠道才能治好皮肤',
+        illus: SVG.skin_fm,
+        caption:'肠道屏障和皮肤屏障是同一套系统的两个出口',
+        story:'想象肠道和皮肤是一座房子里的两条下水管。一条管子（肠道）堵了或者漏了，水就会从另一条管子（皮肤）冒出来，变成湿疹、荨麻疹。很多家长只看到皮肤的问题，拼命涂药膏，却不知道真正的问题在管道源头——肠道。管道修好了，皮肤的水自然就不漏了。',
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠漏→皮肤IgE/IgG反应</strong>：肠道通透性增加→未消化食物蛋白抗原入血→皮肤肥大细胞激活→IgE介导（即时）或IgG介导（延迟6-72h）的皮肤炎症反应。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>丁酸→皮肤屏障修复</strong>：肠道菌群产生的丁酸→激活皮肤神经酰胺（Ceramide）合成→皮肤屏障蛋白聚丝蛋白（Filaggrin）表达↑→皮肤锁水能力↑。特应性皮炎儿童的肠道丁酸菌几乎都显著减少。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠道菌群多样性与皮肤</strong>：生命早期（0-3岁）肠道菌群多样性低→特应性皮炎风险高3-4倍。这是为什么「婴儿期益生菌预防湿疹」有循证依据的原因。</div></div>
+        </div>`,
+        related:['skin-tcm','skin-clinical','skin-test']
+      },
+      { id:'skin-tcm', type:'tcm', title:'黄帝内经：肺开窍于皮毛',
+        preview:'肺气充足则皮毛润泽，大肠积热则皮肤发疹',
+        illus: null,
+        content:`<div class="nq-box"><div class="nq-text">「肺主皮毛」「肺气虚则皮毛焦」<br>「诸痛痒疮，皆属于心（火）」</div><div class="nq-src">——《素问·五脏生成》《素问·至真要大论》</div></div>
+        <div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肺主皮毛</strong>：肺气充足→皮肤润泽有光泽、腠理（毛孔）固密；肺气虚→卫外不固→外邪（过敏原）易侵皮毛→湿疹、荨麻疹。功能医学对应：肠道免疫健康→皮肤屏障完整。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>大肠积热外发于皮</strong>：大肠积滞生热→热邪循经上犯→皮肤出疹。古典皮科「肺肠同治」法：清大肠热+宣肺气，皮肤自然清。对应功能医学：清除肠道炎症→减少皮肤过敏反应。</div></div>
+        </div>`,
+        related:['skin-fm','skin-clinical']
+      },
+      { id:'skin-clinical', type:'cli', title:'临床切入点',
+        preview:'婴儿湿疹·特应性皮炎·荨麻疹·皮肤干燥',
+        illus: null,
+        content:`<div class="cli-rows">
+          <div class="cli-row"><div class="cli-s">婴儿湿疹（0-2岁）</div><div class="cli-a">→ 先查母乳妈妈的食物不耐受</div></div>
+          <div class="cli-row"><div class="cli-s">特应性皮炎反复</div><div class="cli-a">→ 肠道通透性 + 益生菌干预</div></div>
+          <div class="cli-row"><div class="cli-s">荨麻疹找不到原因</div><div class="cli-a">→ IgG96项 + 肠道修复3个月</div></div>
+          <div class="cli-row"><div class="cli-s">皮肤干燥鱼鳞样</div><div class="cli-a">→ 丁酸菌减少 + VitA缺乏</div></div>
+        </div>`,
+        related:['skin-fm','skin-test']
+      },
+      { id:'skin-test', type:'test', title:'检测切入点',
+        preview:'食物不耐受IgG·过敏原IgE·肠道通透性·菌群',
+        illus: null,
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>食物不耐受IgG（96项）</strong>：特别关注乳蛋白、鸡蛋、麸质——婴儿湿疹最常见触发因素。IgG反应延迟，家长往往找不到关联。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>过敏原IgE（吸入+食物）</strong>：排查即时过敏反应原因。与IgG联合判断，区分过敏类型。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠道通透性（Zonulin/LPS）</strong>：「肠漏」程度评估，是皮肤炎症的根源指标。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>粪便菌群（丁酸菌丰度）</strong>：特应性皮炎儿童丁酸菌（Faecalibacterium）几乎都显著减少，是皮肤屏障修复的靶点。</div></div>
+        </div>`,
+        related:['skin-fm','skin-clinical']
+      }
+    ]
+  },
+
+  heart: {
+    zh:'脑肠轴', en:'Gut-Brain Axis', color:'#a84040',
+    tags:[{t:'tcm',v:'心与小肠相表里'},{t:'tcm',v:'心开窍于舌'},{t:'fm',v:'迷走神经80%上行'}],
+    entries:[
+      { id:'heart-fm', type:'fm', title:'功能医学机制：双向对话系统',
+        preview:'80%的迷走神经信号从肠道发往大脑，肠道才是情绪的源头',
+        illus: SVG.brain_fm,
+        caption:'大脑和肠道通过迷走神经对话，但肠道说的更多',
+        story:'我们以为大脑控制肠道，其实刚好相反——迷走神经里有80%的信号是从肠道发往大脑的！肠道里的细菌每天生产快乐激素（血清素、多巴胺的原料），决定孩子今天开不开心、专不专注、睡不睡得好。肠道好的孩子，脑子就清醒；肠道乱的孩子，情绪就容易乱、注意力就容易散。',
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>迷走神经双向通讯</strong>：迷走神经中约80%的信号是从肠道上行到大脑的（感觉传入），只有20%是大脑下行控制肠道（运动传出）。这意味着「gut feeling（直觉）」真的来自肠道。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠道产90%血清素</strong>：血清素（5-HT）是「快乐激素」，95%在肠道肠嗜铬细胞产生。肠道菌群调节色氨酸→血清素转化效率。菌群失调→血清素不足→焦虑、抑郁、入睡困难。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠漏→神经炎症</strong>：肠道通透性↑→LPS入血→穿越血脑屏障→小胶质细胞激活→神经炎症→ADHD/自闭谱系/情绪障碍的底层机制之一。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>甲基化障碍（MTHFR）</strong>：叶酸代谢基因突变→神经递质（多巴胺/血清素）合成受阻，同时影响肠道黏膜修复。ADHD和肠道问题往往同时出现，共同根源在甲基化。</div></div>
+        </div>`,
+        related:['heart-tcm','heart-clinical','heart-test']
+      },
+      { id:'heart-tcm', type:'tcm', title:'黄帝内经：心与小肠相表里',
+        preview:'心主神明，小肠吸收精微养心——舌为心之苗',
+        illus: SVG.brain_tcm,
+        caption:'心主神明（大脑），小肠吸收营养养心——表里相通',
+        story:'黄帝内经说，心（大脑功能）和小肠是一对表里关系。小肠就像一个精华提炼机，把食物里最好的营养精华提炼出来，专门送给心（大脑）用。小肠提炼不好（消化吸收差），大脑就得不到营养，孩子就睡不好、注意力差、情绪也不稳定。「舌为心之苗」——看孩子的舌头，就能看出大脑功能状态。',
+        content:`<div class="nq-box"><div class="nq-text">「心者，君主之官，神明出焉」<br>「心与小肠相表里」<br>「心开窍于舌，其华在面」</div><div class="nq-src">——《素问·灵兰秘典论》《灵枢·脉度》</div></div>
+        <div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>心主神明 = 脑功能</strong>：「神明」包括意识、思维、情绪、记忆，这正是现代神经科学讲的大脑功能。心健则神明；心虚则神散（注意力涣散）、神乱（情绪障碍）。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>小肠「化物出焉」</strong>：小肠主吸收，将水谷精微（营养素）化生后上奉于心，养心神。对应功能医学：小肠吸收不良→B族维生素、氨基酸缺乏→神经递质合成不足→脑功能下降。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「舌为心之苗」</strong>：舌是心（大脑）功能的外在窗口。舌诊可以判断脑神经功能状态——舌质淡白（心血不足/气虚），舌尖红（心火旺/焦虑），舌苔厚腻（脾胃湿浊影响神明）。语言发育迟缓的孩子往往有特殊舌象。</div></div>
+        </div>`,
+        related:['heart-fm','heart-clinical']
+      },
+      { id:'heart-clinical', type:'cli', title:'临床切入点',
+        preview:'ADHD·自闭谱系·睡眠障碍·语言迟缓·情绪问题',
+        illus: null,
+        content:`<div class="cli-rows">
+          <div class="cli-row"><div class="cli-s">ADHD / 注意力不集中</div><div class="cli-a">→ 有机酸 + MTHFR基因 + 重金属</div></div>
+          <div class="cli-row"><div class="cli-s">自闭症谱系（ASD）</div><div class="cli-a">→ 肠道菌群 + 重金属 + 食物不耐受</div></div>
+          <div class="cli-row"><div class="cli-s">入睡困难 / 睡眠质量差</div><div class="cli-a">→ 色氨酸→血清素通路 + 镁</div></div>
+          <div class="cli-row"><div class="cli-s">语言发育迟缓</div><div class="cli-a">→ 脑肠轴 + 甲基化干预 + 舌诊</div></div>
+          <div class="cli-row"><div class="cli-s">情绪暴躁 / 焦虑 / 恐惧</div><div class="cli-a">→ 肠道血清素不足 + 肠漏评估</div></div>
+        </div>`,
+        related:['heart-fm','heart-test']
+      },
+      { id:'heart-test', type:'test', title:'检测切入点',
+        preview:'有机酸OAT·MTHFR基因·重金属·粪便菌群',
+        illus: null,
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>有机酸（OAT）</strong>：神经递质代谢通路的最重要功能医学检测。色氨酸代谢（血清素通路）、酪氨酸代谢（多巴胺通路）、GABA相关指标，一次检测看清神经递质状态。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>MTHFR基因（+甲基化全套）</strong>：C677T、A1298C突变影响叶酸代谢→神经递质合成障碍。ADHD/自闭孩子必查，指导甲基化B族补充方案。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>重金属全套（血/尿/发）</strong>：铅、汞、铝、镉——神经毒性重金属是ADHD和自闭谱系的隐性危险因素，影响神经髓鞘和突触功能。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>粪便菌群</strong>：产血清素相关菌（双歧杆菌属）、GABA相关菌的丰度，是脑肠轴功能的直接反映。</div></div>
+        </div>`,
+        related:['heart-fm','heart-clinical']
+      }
+    ]
+  },
+
+  liver: {
+    zh:'肝肠轴', en:'Gut-Liver Axis', color:'#3a7055',
+    tags:[{t:'tcm',v:'肝与胆相表里'},{t:'tcm',v:'肝开窍于目'},{t:'fm',v:'门静脉直连'}],
+    entries:[
+      { id:'liver-fm', type:'fm', title:'功能医学机制：海关检查站',
+        preview:'门静脉是肠道直通肝脏的高速公路，肝脏是毒素的第一道海关',
+        illus: SVG.liver_fm,
+        caption:'肠道是港口，门静脉是高速路，肝脏是海关',
+        story:'肠道就像一个大港口，每天进进出出很多货物（营养）和垃圾（毒素）。门静脉是从港口直通海关（肝脏）的专用高速公路。所有从肠道吸收的东西，第一站都要经过肝脏海关检查。海关每天超负荷工作——检查营养、清除毒素、代谢药物。如果肠道港口管理不好（肠漏），大量垃圾涌入高速路，海关就会越来越累，最终转氨酶升高、脂肪肝就来了。',
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>门静脉系统</strong>：肠道吸收的所有物质（营养+毒素）都通过门静脉直接进入肝脏，这是肠肝轴的解剖学基础。健康肠道→营养入肝；肠漏→大量LPS+未消化抗原涌入肝脏→肝脏持续激活炎症通路。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>胆汁酸肝肠循环</strong>：肝脏分泌胆汁→进入小肠乳化脂肪→95%被小肠末端重吸收→回到肝脏（肠肝循环）。肠道菌群调节胆汁酸的种类和比例，次级胆汁酸异常→脂肪肝风险↑。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肝脏Phase I/II排毒</strong>：Phase I（CYP450氧化）→Phase II（结合反应，需要谷胱甘肽等）→通过胆汁或肾脏排出。肠道健康→Phase II底物（氨基酸、B族）充足；肠道失调→排毒通路受阻。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>脂溶性维生素吸收</strong>：ADEK和CoQ10的吸收依赖肝脏分泌的胆汁乳化脂肪。肝胆功能下降→脂溶性营养素普遍缺乏→「补了也没用」的根源。</div></div>
+        </div>`,
+        related:['liver-tcm','liver-clinical','liver-test']
+      },
+      { id:'liver-tcm', type:'tcm', title:'黄帝内经：肝主疏泄与胆汁',
+        preview:'肝主疏泄，调畅全身气机；肝开窍于目——眼睛是肝的窗口',
+        illus: null,
+        content:`<div class="nq-box"><div class="nq-text">「肝者，将军之官，谋虑出焉」<br>「肝主疏泄」「肝开窍于目」<br>「胆者，中正之官，决断出焉」</div><div class="nq-src">——《素问·灵兰秘典论》</div></div>
+        <div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肝主疏泄 = 代谢调控</strong>：肝气调畅→气机顺畅→胆汁正常分泌→消化正常。肝气郁结→胆汁分泌减少/不规律→消化油腻食物困难→脂溶性维生素吸收不良。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「肝开窍于目」</strong>：眼睛是肝脏的外在窗口。脂溶性维生素A（视紫质原料）依赖肝胆功能吸收；肝经郁热→眼屎多、目赤；肝血不足→视力下降、夜盲。功能医学对应：肝胆功能 = 脂溶性维生素吸收效率。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>情志与肝的双向关系</strong>：「怒伤肝」——慢性压力和愤怒→肝气郁结→影响胆汁分泌→消化受损。功能医学印证：皮质醇升高→肝脏Phase I过度激活→自由基增加→肝损伤。</div></div>
+        </div>`,
+        related:['liver-fm','liver-clinical']
+      },
+      { id:'liver-clinical', type:'cli', title:'临床切入点',
+        preview:'儿童脂肪肝·眼部过敏·青春期痤疮·脂溶性维生素缺乏',
+        illus: null,
+        content:`<div class="cli-rows">
+          <div class="cli-row"><div class="cli-s">儿童转氨酶升高 / 脂肪肝</div><div class="cli-a">→ 肠道修复 + 胆碱 + 去除食物不耐受</div></div>
+          <div class="cli-row"><div class="cli-s">眼部过敏 / 眼屎多 / 视力问题</div><div class="cli-a">→ 脂溶性VA + DHA + 肝胆功能</div></div>
+          <div class="cli-row"><div class="cli-s">青春期痤疮（顽固型）</div><div class="cli-a">→ 雄激素肝脏代谢 + 肠道排毒</div></div>
+          <div class="cli-row"><div class="cli-s">补ADEK多年效果差</div><div class="cli-a">→ 胆汁分泌不足，吸收障碍</div></div>
+        </div>`,
+        related:['liver-fm','liver-test']
+      },
+      { id:'liver-test', type:'test', title:'检测切入点',
+        preview:'有机酸排毒通路·脂溶性ADEK·重金属·胆汁酸',
+        illus: null,
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>有机酸（排毒通路）</strong>：OAT中的葡萄糖醛酸化、硫化、甘氨酸结合指标，评估肝脏Phase II排毒能力。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>脂溶性维生素ADEK</strong>：VitA（视黄醇）、VitD3（25-OH）、VitE（α-生育酚）、VitK2（MK-7），四项联查，评估肝胆吸收功能。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>重金属全套</strong>：重金属（铅、汞、砷）优先在肝脏蓄积，干扰Phase I排毒酶（CYP450）活性，是儿童肝损伤的隐性原因。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>常规肝功能（AST/ALT/GGT）</strong>：基础筛查。GGT是最敏感的肝脏氧化应激指标，谷胱甘肽消耗的早期信号。</div></div>
+        </div>`,
+        related:['liver-fm','liver-clinical']
+      }
+    ]
+  },
+
+  spleen: {
+    zh:'脾胃轴（核心枢纽）', en:'Gut-Digestive Core', color:'#9a7a20',
+    tags:[{t:'tcm',v:'脾胃为后天之本'},{t:'fm',v:'消化酶·菌群·吸收'}],
+    entries:[
+      { id:'spleen-fm', type:'fm', title:'功能医学机制：食品加工厂',
+        preview:'胃是搅拌机，肠道菌群是工人，一起把食物变成孩子的营养',
+        illus: SVG.spleen_fm,
+        caption:'脾胃是食品加工厂：胃酸→消化酶→菌群工人→营养输出',
+        story:'吃进去的食物要经过三道工序才能成为孩子身体的营养：第一道是胃（搅拌机+消毒机），用强酸分解食物、杀掉细菌；第二道是消化酶（剪刀），把大分子剪成小分子；第三道是肠道菌群（工人），进一步加工、合成维生素、产生保护物质。工厂任何一道工序出问题，孩子就算吃得再多也不长，这就是「脾虚」的现代解读。',
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>胃酸（pH1.5-3）</strong>：第一道防线。激活胃蛋白酶→蛋白质消化；杀灭90%经口病原体；触发胰腺分泌消化酶。低胃酸（多见于长期用PPIs、锌缺乏儿童）→消化障碍+感染风险↑。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>消化酶系统</strong>：胰蛋白酶、脂肪酶、淀粉酶、乳糖酶——决定营养素实际利用率。消化酶不足是儿童积食、腹胀的直接原因，而非「吃多了」。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠道菌群多样性</strong>：「脾胃为后天之本」的微生物学注解。菌群合成B族维生素（B1、B2、B12、K2）、短链脂肪酸，这些是胃肠道、大脑、骨骼所有系统的能量底物。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>铁、锌、B12吸收</strong>：铁需要低pH（胃酸）才能被还原为亚铁吸收；锌吸收需要消化酶；B12需要「内因子」（胃壁细胞分泌）。脾胃虚弱 = 微量元素慢性缺乏。</div></div>
+        </div>`,
+        related:['spleen-tcm','spleen-clinical','spleen-test']
+      },
+      { id:'spleen-tcm', type:'tcm', title:'黄帝内经：脾胃为后天之本',
+        preview:'脾主运化，胃主受纳——后天一切能量的来源',
+        illus: null,
+        content:`<div class="nq-box"><div class="nq-text">「脾胃者，仓廪之官，五味出焉」<br>「胃者，水谷之海，六腑之大源也」<br>「脾为后天之本，气血生化之源」</div><div class="nq-src">——《素问·灵兰秘典论》《灵枢·海论》</div></div>
+        <div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「仓廪之官」</strong>：脾胃是人体的粮仓和加工厂。「仓廪足」= 孩子气血充盈、精神饱满、生长良好；「仓廪空」= 气血不足、面黄肌瘦、生长迟缓。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>脾主运化 = 消化+吸收+转运</strong>：运化水谷（消化吸收营养）+ 运化水湿（水液代谢）。脾虚=工厂停工=积食、腹胀、便溏、肌肉无力（「脾主肌肉四肢」）。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「脾开窍于口，其华在唇」</strong>：口腔是脾胃的外窗。口臭（胃热）、口腔溃疡（脾经热）、唇色苍白（脾血不足）、唇色暗（脾虚血瘀）——每天观察孩子嘴唇，就是在看脾胃状态。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>钱乙「脾常不足」</strong>：宋代儿科大家钱乙指出，小儿先天脾胃发育未完善，消化功能本来就弱，所以儿科治病，健脾优先。功能医学印证：3岁前肠道菌群正在建立，消化酶系统未成熟，这个时期的喂养方式影响终生。</div></div>
+        </div>`,
+        related:['spleen-fm','spleen-clinical']
+      },
+      { id:'spleen-clinical', type:'cli', title:'临床切入点',
+        preview:'积食·生长迟缓·口臭·反复腹痛·营养素缺乏',
+        illus: null,
+        content:`<div class="cli-rows">
+          <div class="cli-row"><div class="cli-s">积食 / 厌食 / 挑食</div><div class="cli-a">→ 消化酶不足 + 胃酸低下</div></div>
+          <div class="cli-row"><div class="cli-s">生长迟缓（吃多少都不长）</div><div class="cli-a">→ 营养吸收障碍全套评估</div></div>
+          <div class="cli-row"><div class="cli-s">反复腹痛 / 腹胀 / 便秘腹泻</div><div class="cli-a">→ GI-MAP + SIBO筛查</div></div>
+          <div class="cli-row"><div class="cli-s">缺铁性贫血屡补不改善</div><div class="cli-a">→ 胃酸 + 铁吸收通路评估</div></div>
+          <div class="cli-row"><div class="cli-s">口臭 / 反复口腔溃疡</div><div class="cli-a">→ 脾开窍于口：清胃热+健脾</div></div>
+        </div>`,
+        related:['spleen-fm','spleen-test']
+      },
+      { id:'spleen-test', type:'test', title:'检测切入点',
+        preview:'GI-MAP·胃蛋白酶原·微量元素·B12',
+        illus: null,
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>GI-MAP消化功能综合评估</strong>：涵盖消化酶活性、菌群多样性、病原体筛查、肠道炎症（钙卫蛋白）、肠道通透性，是最全面的脾胃功能检测。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>胃蛋白酶原I/II（PG I/PG II）</strong>：胃酸分泌能力的间接指标。PGI低 = 胃酸不足 = 所有蛋白质消化、铁锌B12吸收都受影响。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>微量元素全套（铁、锌、铜、硒、碘）</strong>：脾胃虚弱→微量元素慢性缺乏。锌缺乏→消化酶活性下降→形成恶性循环。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>维生素B12 / 叶酸（红细胞叶酸）</strong>：需要「内因子」（胃壁细胞）协助吸收，是胃功能的灵敏标志物。B12低 = 胃酸低 + 小肠吸收差。</div></div>
+        </div>`,
+        related:['spleen-fm','spleen-clinical']
+      }
+    ]
+  },
+
+  kidney: {
+    zh:'肾肠轴', en:'Gut-Kidney Axis', color:'#4a4880',
+    tags:[{t:'tcm',v:'肾与膀胱相表里'},{t:'tcm',v:'肾开窍于耳及二阴'},{t:'fm',v:'尿毒素·皮质醇轴'}],
+    entries:[
+      { id:'kidney-fm', type:'fm', title:'功能医学机制：污水处理系统',
+        preview:'肠道菌群代谢产生的毒素经门静脉直达肾脏，肠道健康保护肾功能',
+        illus: SVG.kidney_fm,
+        caption:'肠道是污水源头，肾脏是处理厂，源头越干净肾脏越轻松',
+        story:'肠道里的细菌每天代谢产生各种物质，大部分是有益的，但也有一些毒素（比如硫酸吲哚酚）。这些毒素通过血液流到肾脏，肾脏每天要过滤处理它们。如果肠道菌群失调，产毒素的细菌增多，就像污水源头越来越脏，肾脏处理厂超负荷运转，久而久之就会慢性损伤。所以保护肾脏，要从保护肠道开始。',
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠源性尿毒症毒素</strong>：硫酸吲哚酚（IS）、对甲酚硫酸盐（PCS）——由肠道菌群代谢产生，经门静脉入肾，长期积累加速肾小球纤维化。慢性肾病患者的首要干预应包含肠道菌群调整。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肾上腺-肠道皮质醇轴</strong>：慢性压力/应激→皮质醇持续升高→肠道紧密连接蛋白（Occludin）表达下降→肠漏→肠道毒素增加→肾脏负担加重→形成恶性循环。遗尿症的孩子往往同时有肾上腺皮质醇节律紊乱。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠道与甲状旁腺激素（PTH）</strong>：肠道钙磷吸收失调→PTH代偿升高→骨钙溶出→肾脏钙化风险。这连接了肾肠轴与骨骼肠轴。</div></div>
+        </div>`,
+        related:['kidney-tcm','kidney-clinical','kidney-test']
+      },
+      { id:'kidney-tcm', type:'tcm', title:'黄帝内经：肾主骨生髓，开窍于耳',
+        preview:'肾阳命门之火——五更泻是肾阳虚的经典信号',
+        illus: null,
+        content:`<div class="nq-box"><div class="nq-text">「肾者，作强之官，伎巧出焉」<br>「肾主骨，生髓，髓上通于脑」<br>「肾开窍于耳及二阴」</div><div class="nq-src">——《素问·灵兰秘典论》《素问·阴阳应象大论》</div></div>
+        <div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「肾开窍于二阴」</strong>：前阴（膀胱排尿）和后阴（大肠排便）都归肾气管辖。遗尿=肾气不固膀胱；五更泻（黎明腹泻）=肾阳虚，命门火衰，无力温煦大肠。功能医学对应：皮质醇节律紊乱→清晨肠道蠕动异常。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「肾开窍于耳」</strong>：听力问题、耳鸣、反复中耳炎，古典上与肾精不足相关。功能医学印证：中耳炎反复发作的孩子，食物不耐受（尤其乳蛋白）和肠道菌群失调发生率显著偏高。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>命门之火 = 肾上腺功能</strong>：「命门火」是古典中对人体基础代谢率、应激能力的描述，高度对应现代肾上腺皮质醇系统。命门火衰=肾上腺疲劳=慢性疲劳、怕冷、应激反应差。</div></div>
+        </div>`,
+        related:['kidney-fm','kidney-clinical']
+      },
+      { id:'kidney-clinical', type:'cli', title:'临床切入点',
+        preview:'遗尿·反复中耳炎·肾病综合征·五更泻',
+        illus: null,
+        content:`<div class="cli-rows">
+          <div class="cli-row"><div class="cli-s">遗尿症（>5岁仍有）</div><div class="cli-a">→ 肾上腺皮质醇节律 + 肠道菌群</div></div>
+          <div class="cli-row"><div class="cli-s">反复中耳炎（每年≥4次）</div><div class="cli-a">→ 食物不耐受 + 肠道菌群</div></div>
+          <div class="cli-row"><div class="cli-s">肾病综合征</div><div class="cli-a">→ 肠道屏障修复 + 抗炎饮食</div></div>
+          <div class="cli-row"><div class="cli-s">五更泻（黎明腹泻）</div><div class="cli-a">→ 肾上腺皮质醇节律 + 温肾</div></div>
+          <div class="cli-row"><div class="cli-s">慢性疲劳 / 怕冷（儿童）</div><div class="cli-a">→ 肾上腺功能 + 甲状腺联查</div></div>
+        </div>`,
+        related:['kidney-fm','kidney-test']
+      },
+      { id:'kidney-test', type:'test', title:'检测切入点',
+        preview:'皮质醇节律·有机酸·粪便菌群',
+        illus: null,
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>皮质醇4点节律（唾液）</strong>：早8点、中午12点、下午4点、晚8点，四个时间点采样，评估肾上腺功能节律。「五更泻」的孩子往往清晨皮质醇异常。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>有机酸（OAT）</strong>：肾功能相关有机酸标志物，如甲基丙二酸（肾小管功能指标）、硫酸吲哚酚前体等。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>粪便菌群</strong>：产尿毒素细菌（Clostridiales）的丰度，是肾脏毒素负担的间接指标。</div></div>
+        </div>`,
+        related:['kidney-fm','kidney-clinical']
+      }
+    ]
+  },
+
+  bone: {
+    zh:'骨骼肠轴', en:'Gut-Bone Axis', color:'#3a6070',
+    tags:[{t:'tcm',v:'肾主骨生髓'},{t:'fm',v:'K2引钙入骨·SCFA激活成骨'}],
+    entries:[
+      { id:'bone-fm', type:'fm', title:'功能医学机制：K2快递员',
+        preview:'肠道菌群合成K2，K2是把钙送进骨头的快递员',
+        illus: SVG.bone_fm,
+        caption:'钙是砖块，VitK2是快递员——没有快递员，砖块送不到工地',
+        story:'很多孩子补了好多年钙，身高还是不长。原因可能不是钙不够，而是"快递员"（维生素K2）太少。K2是肠道里的细菌合成的。K2的任务就是激活一种蛋白质（骨钙素），把血液里的钙引导进骨头里。没有K2，钙就乱跑，可能跑进血管壁，而不是骨头。所以肠道菌群→K2→引钙入骨→孩子才能真正长高。',
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>VitK2（MK-7）合成通路</strong>：肠道菌群（纳豆菌、乳酸菌等）合成MK-7，这是骨钙素（Osteocalcin）的辅因子。骨钙素被K2激活后，才能将钙引入骨骼基质。K2缺乏=补再多钙也入不了骨。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>SCFA激活成骨细胞</strong>：肠道丁酸→直接作用于成骨细胞（Osteoblast），抑制破骨细胞（Osteoclast），净效果是骨密度↑。炎症性肠病患者骨密度下降20-30%，验证了肠骨轴的临床意义。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>VitD3+K2协同作用</strong>：D3负责促进钙从肠道吸收进血液；K2负责把血液中的钙引导进骨头（而非血管壁）。两者缺一不可：只补D3不补K2→血钙升高但骨密度不改善，还可能钙化血管。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠道钙吸收主动通路</strong>：钙的主动吸收需要VitD3激活的钙结合蛋白（Calbindin），在十二指肠完成。胃酸低下（低pH）和肠道炎症都会显著降低钙的吸收率。</div></div>
+        </div>`,
+        related:['bone-tcm','bone-clinical','bone-test']
+      },
+      { id:'bone-tcm', type:'tcm', title:'黄帝内经：肾主骨生髓',
+        preview:'齿为骨之余——出牙迟、换牙异常是肾精不足的信号',
+        illus: null,
+        content:`<div class="nq-box"><div class="nq-text">「肾主骨，生髓」「齿为骨之余」<br>「脾主肌肉四肢」<br>「肾气盛，则骨强而有力」</div><div class="nq-src">——《素问·宣明五气》《素问·上古天真论》</div></div>
+        <div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「肾主骨生髓」</strong>：肾精充足→骨髓生长旺盛→骨骼强健。功能医学对应：肾上腺功能（命门火）+ 肠道营养吸收（脾胃后天之本）共同决定骨骼质量。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「齿为骨之余」</strong>：牙齿是肾精状态的外在指标。出牙迟（>12月）、换牙异常（顺序/时间异常）、龋齿高发——均提示肾精（脂溶性营养素+矿物质）不足，需要从肠道吸收和脂溶性维生素角度干预。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「脾主肌肉四肢」</strong>：骨骼和肌肉是协同的。脾虚→肌肉无力→骨骼支撑减弱→体态问题（O型腿、脊柱侧弯）。身高迟缓的孩子，脾肾同补是古典思路，对应功能医学的「消化吸收+骨骼营养素」双轨干预。</div></div>
+        </div>`,
+        related:['bone-fm','bone-clinical']
+      },
+      { id:'bone-clinical', type:'cli', title:'临床切入点',
+        preview:'身高迟缓·补钙无效·O型腿·出牙迟·龋齿多',
+        illus: null,
+        content:`<div class="cli-rows">
+          <div class="cli-row"><div class="cli-s">身高增长缓慢（低于P10）</div><div class="cli-a">→ VitD3+K2+锌+肠道吸收评估</div></div>
+          <div class="cli-row"><div class="cli-s">补钙多年身高不长</div><div class="cli-a">→ K2缺乏：钙没进骨头</div></div>
+          <div class="cli-row"><div class="cli-s">O型腿 / X型腿</div><div class="cli-a">→ VitD3+K2+磷吸收+骨密度</div></div>
+          <div class="cli-row"><div class="cli-s">出牙迟（>12月）/ 龋齿多</div><div class="cli-a">→ 脂溶性ADEK+矿物质全套</div></div>
+          <div class="cli-row"><div class="cli-s">五迟五软（发育迟缓）</div><div class="cli-a">→ 脾肾同补 + 营养全套</div></div>
+        </div>`,
+        related:['bone-fm','bone-test']
+      },
+      { id:'bone-test', type:'test', title:'检测切入点',
+        preview:'VitD3·K2·碱性磷酸酶·钙磷比·骨龄',
+        illus: null,
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>25-OH-VitD3</strong>：最重要的骨骼营养素检测。儿科最优目标值：60-80 ng/mL（远高于「正常范围」下限20 ng/mL）。多数儿童严重不足。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>VitK2（MK-7）</strong>：「钙快递员」，国内检测尚不普及，但临床上可通过骨钙素（未羧化/羧化比值）间接评估K2功能状态。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>碱性磷酸酶（ALP）+ 钙磷比</strong>：骨代谢活跃度指标。生长期儿童ALP偏高是正常的，但钙磷比失衡（<2:1）提示矿化障碍。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>骨龄评估（左手X光）</strong>：评估骨龄与年龄差距，指导干预窗口。骨龄落后但骨骺未闭合=仍有干预空间。</div></div>
+        </div>`,
+        related:['bone-fm','bone-clinical']
+      }
+    ]
+  },
+
+  thyroid: {
+    zh:'甲状腺肠轴', en:'Gut-Thyroid Axis', color:'#5a7a3a',
+    tags:[{t:'tcm',v:'命门之火'},{t:'fm',v:'T4→T3肠道转化'}],
+    entries:[
+      { id:'thyroid-fm', type:'fm', title:'功能医学机制：汽车启动钥匙',
+        preview:'T4是未启动的汽车，T3是启动的汽车，肠道菌群是点火的钥匙',
+        illus: SVG.thyroid_fm,
+        caption:'甲状腺分泌T4（未激活），肠道菌群把T4变成T3（激活）',
+        story:'甲状腺每天生产一种叫T4的激素，但T4就像一辆没启动的汽车，没有任何动力。T4要在肠道里被一种酶（脱碘酶，需要硒）改造成T3，才变成一辆跑起来的汽车——让身体暖和起来、代谢加速、精神好。如果孩子的肠道菌群乱了，这把钥匙就失灵，T4→T3转化减少，孩子就怕冷、便秘、长得慢，即使查甲功TSH正常，也可能有T3不足的问题。',
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>肠道T4→T3转化</strong>：约20%的T4→T3转化发生在肠道（肠道菌群分泌的脱碘酶，依赖硒作为辅因子）。肠道菌群失调→转化减少→FT3偏低→「TSH正常但症状明显」的常见原因。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>分子模拟机制（桥本氏）</strong>：肠漏→未消化的麸质蛋白等进入血液→其结构与甲状腺组织蛋白相似→免疫系统「认错」→产生TPO-Ab/TG-Ab攻击甲状腺。无麸质饮食+肠道修复是桥本氏甲状腺炎的根本干预。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>硒缺乏的关键作用</strong>：硒是脱碘酶（T4→T3）和谷胱甘肽过氧化物酶（保护甲状腺免受氧化损伤）的核心辅因子。硒缺乏时，甲状腺同时面临「T3合成不足」和「氧化应激加重」的双重打击。</div></div>
+        </div>`,
+        related:['thyroid-tcm','thyroid-clinical','thyroid-test']
+      },
+      { id:'thyroid-tcm', type:'tcm', title:'黄帝内经：命门之火与代谢',
+        preview:'命门火衰=肾阳不足=现代的甲状腺功能减退',
+        illus: null,
+        content:`<div class="nq-box"><div class="nq-text">「命门者，相火之源，诸阳之本」<br>「肾阳为一身阳气之根」<br>「脾虚则生痰湿，痰气交阻」</div><div class="nq-src">——《难经·三十六难》《素问·生气通天论》</div></div>
+        <div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>命门火 = 基础代谢率</strong>：命门之火温煦全身，维持体温、推动气血运行——高度对应甲状腺激素（T3）对基础代谢的调控作用。命门火衰的症状：怕冷、便秘、水肿、精神萎靡、生长缓慢，与甲状腺功能低下几乎完全重叠。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「脾虚生痰湿」= 代谢综合征</strong>：脾虚→运化失司→水湿停聚→痰湿体质=代谢减慢、肥胖、甲状腺肿大（「瘿病」）。桥本氏甲状腺炎在古典中属「瘿气」，痰气郁结为标，脾肾两虚为本。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>产后甲状腺炎视角</strong>：产后气血大亏，肾精耗损，脾胃功能减弱→免疫失调→甲状腺抗体升高。「产后虚」的古典认识完全对应产后甲状腺炎的现代机制。</div></div>
+        </div>`,
+        related:['thyroid-fm','thyroid-clinical']
+      },
+      { id:'thyroid-clinical', type:'cli', title:'临床切入点',
+        preview:'生长迟缓伴怕冷·桥本氏·产后甲状腺炎·TSH正常但疲乏',
+        illus: null,
+        content:`<div class="cli-rows">
+          <div class="cli-row"><div class="cli-s">生长迟缓伴怕冷便秘</div><div class="cli-a">→ 甲功全套 + 硒 + 碘</div></div>
+          <div class="cli-row"><div class="cli-s">桥本氏甲状腺炎</div><div class="cli-a">→ 无麸质饮食 + 肠道修复</div></div>
+          <div class="cli-row"><div class="cli-s">产后甲状腺炎（妈妈）</div><div class="cli-a">→ 肠道屏障 + TPO-Ab监测</div></div>
+          <div class="cli-row"><div class="cli-s">TSH正常但疲乏怕冷</div><div class="cli-a">→ FT3/FT4比值 + T3转化评估</div></div>
+        </div>`,
+        related:['thyroid-fm','thyroid-test']
+      },
+      { id:'thyroid-test', type:'test', title:'检测切入点',
+        preview:'甲功全套·硒·碘·铁蛋白·麸质抗体',
+        illus: null,
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>甲功全套（7项）</strong>：TSH + FT3 + FT4 + TG-Ab + TPO-Ab + TG + rT3。仅查TSH远远不够；FT3/FT4比值反映T4→T3转化效率；rT3升高提示慢性压力/炎症阻断了T3激活。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>硒（全血或红细胞硒）</strong>：T4→T3转化的关键辅因子，同时保护甲状腺免受氧化损伤。中国儿童硒缺乏普遍，是桥本氏高发的重要原因之一。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>麸质抗体（AGA/tTG-IgA）</strong>：桥本氏甲状腺炎患者无麸质饮食前必查，明确是否存在麸质相关分子模拟。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>铁蛋白</strong>：甲状腺过氧化物酶（TPO）是含铁酶，铁蛋白低（<50 ng/mL）→TPO活性下降→T4合成不足。甲减和缺铁往往同时存在，互为因果。</div></div>
+        </div>`,
+        related:['thyroid-fm','thyroid-clinical']
+      }
+    ]
+  },
+
+  triple: {
+    zh:'三焦 · 线粒体能量网络', en:'Triple Warmer · Cross-Axis Foundation', color:'#6a4a8a',
+    tags:[{t:'tcm',v:'三焦主气化通行水道'},{t:'fm',v:'线粒体·淋巴·自噬'}],
+    entries:[
+      { id:'triple-vis', type:'fm', title:'三焦全貌：三层楼能量大厦',
+        preview:'上焦如雾（心肺能量输出），中焦如沤（消化代谢），下焦如渎（排废清毒）',
+        illus: SVG.triple_vis,
+        caption:'三焦是贯穿所有轴的能量管理系统，上中下三层各司其职',
+        story:'三焦就像一栋三层楼的能量大厦。顶层（上焦）是心脏和肺，像雾一样把能量弥散到全身每个角落；中层（中焦）是脾胃和肝，像厨房一样把食物加工成能量；底层（下焦）是肾脏和肠道，像下水道一样把废物排出去。三层楼要同时正常运转，人才有活力——这就是线粒体能量网络在功能医学里的古典对应。',
+        content:`<div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>三焦主气化 = 线粒体ATP合成</strong>：「气化」就是能量转化，细胞层面就是线粒体的氧化磷酸化（ADP→ATP）。三焦气化失司=线粒体功能障碍=慢性疲劳、免疫低下、代谢紊乱的共同根源。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「通行水道」= 淋巴循环</strong>：三焦是全身水液运行的通道，对应现代淋巴管系统。「三焦水道」不通=淋巴循环障碍=组织水肿、毒素蓄积、免疫细胞运输障碍。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>下焦如渎 = 细胞自噬（Autophagy）</strong>：「渎」是排水沟，下焦清除废物。现代对应：线粒体自噬（Mitophagy）清除老化线粒体，溶酶体降解损坏蛋白质。下焦不通=自噬障碍=炎症慢性化=加速老化。</div></div>
+        </div>`,
+        related:['triple-shang','triple-zhong','triple-xia']
+      },
+      { id:'triple-shang', type:'fm', title:'上焦 · 心肺能量输出',
+        preview:'上焦如雾——心肺将能量以雾露形式弥散全身，对应线粒体氧化磷酸化',
+        illus: null,
+        content:`<div class="nq-box"><div class="nq-text">「上焦如雾，上焦开发，宣五谷味，熏肤充身泽毛」</div><div class="nq-src">——《灵枢·营卫生会》《灵枢·决气》</div></div>
+        <div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「如雾」= 弥散式能量分配</strong>：心主血脉（ATP输送到每个细胞），肺主气（氧气供给，有氧呼吸底物）。上焦功能下降=细胞能量不足=反复疲劳、运动不耐受、注意力涣散。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>线粒体氧化磷酸化</strong>：葡萄糖/脂肪酸→柠檬酸循环→电子传递链→ATP合成酶→ATP。这个过程需要CoQ10、B族维生素、铁、镁作为辅因子。上焦衰弱=CoQ10不足+B族缺乏。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>儿科意义</strong>：反复疲劳、运动后极度疲惫、心悸气短——在排除心肺器质性疾病后，要从线粒体能量代谢角度评估。有机酸（柠檬酸循环）是最直接的检测工具。</div></div>
+        </div>`,
+        related:['triple-vis','triple-zhong']
+      },
+      { id:'triple-zhong', type:'fm', title:'中焦 · 消化代谢转换',
+        preview:'中焦如沤——脾胃肝像发酵缸一样，将食物转化为气血',
+        illus: null,
+        content:`<div class="nq-box"><div class="nq-text">「中焦如沤，中焦受气取汁，变化而赤，是谓血」</div><div class="nq-src">——《灵枢·营卫生会》</div></div>
+        <div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「如沤」= 发酵腐熟 = 消化代谢</strong>：中焦脾胃像个大发酵缸，把食物（底物）一步步转化为精微（血液/能量）。对应：消化酶→营养吸收→肝脏代谢（糖异生、脂肪酸氧化、蛋白质合成）。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>餐后困倦的原因</strong>：中焦衰弱=消化耗能过大=饭后大量血液流向肠道→脑部供血减少→困倦。功能医学：消化酶不足+线粒体效率低=每顿饭都在「超负荷运转」。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>血糖波动与中焦</strong>：「脾主运化」包括水谷精微的缓慢均匀释放=血糖稳定。脾虚→运化失司→血糖大幅波动→餐后2小时低血糖→情绪烦躁→「吃完就饿、饿了就烦」的孩子，根在中焦。</div></div>
+        </div>`,
+        related:['triple-vis','triple-xia']
+      },
+      { id:'triple-xia', type:'fm', title:'下焦 · 细胞自噬与排废',
+        preview:'下焦如渎——肾肠是人体的排水系统，细胞自噬是分子级别的大扫除',
+        illus: null,
+        content:`<div class="nq-box"><div class="nq-text">「下焦如渎，下焦者，别回肠，注于膀胱而渗入焉」</div><div class="nq-src">——《灵枢·营卫生会》</div></div>
+        <div class="kp">
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>「如渎」= 排水系统 = 排毒网络</strong>：肠道排便（大渎）+ 肾脏排尿（小渎）+ 淋巴引流（水道）+ 细胞自噬（分子清洁工）。任何一个通道堵塞，毒素蓄积，炎症慢性化。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>细胞自噬（Autophagy）= 分子大扫除</strong>：细胞定期清除老化线粒体（Mitophagy）和损坏蛋白质。自噬障碍=细胞垃圾堆积=炎症加速=老化加速。间歇性断食激活自噬，古典「辟谷」有其分子机制基础。</div></div>
+          <div class="kp-row"><div class="kp-dot"></div><div class="kp-text"><strong>重金属与下焦不通</strong>：重金属（铅、汞）蓄积=下焦严重堵塞=影响所有器官。重金属螯合排出需要下焦（肾脏）功能正常运转，同时需要肠道（大便通畅）配合排出。</div></div>
+        </div>`,
+        related:['triple-vis','triple-shang']
+      }
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════
+// NAVIGATION STATE
+// ═══════════════════════════════════════════
+let currentAxis = null;
+let currentEntry = null;
+
+function allEntries() {
+  return Object.values(DATA).flatMap(a => a.entries);
+}
+
+function findEntry(id) {
+  return allEntries().find(e => e.id === id);
+}
+
+function findAxisForEntry(id) {
+  return Object.entries(DATA).find(([,a]) => a.entries.some(e => e.id === id));
+}
+
+// ── Show / Hide views ──
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  const v = document.getElementById(id);
+  v.classList.add('on');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── Breadcrumb ──
+function setBreadcrumb(parts) {
+  const bc = document.getElementById('bc');
+  bc.innerHTML = parts.map((p,i) =>
+    `<span class="bc-item${i===parts.length-1?' current':''}" ${p.fn?`onclick="${p.fn}"`:''}>${p.label}</span>` +
+    (i<parts.length-1?'<span class="bc-sep">›</span>':'')
+  ).join('');
+}
+
+// ── HOME ──
+function goHome() {
+  currentAxis = null; currentEntry = null;
+  showView('home');
+  setBreadcrumb([{label:'首页'}]);
+}
+
+// ── AXIS ──
+function openAxis(key) {
+  currentAxis = key;
+  const ax = DATA[key];
+  document.getElementById('ax-bar').style.background = ax.color;
+  document.getElementById('ax-zh').textContent = ax.zh;
+  document.getElementById('ax-en').textContent = ax.en;
+  document.getElementById('ax-tags').innerHTML = ax.tags.map(t =>
+    `<span class="ttag ${t.t}">${t.v}</span>`).join('');
+
+  const BADGE_MAP = {fm:'功能医学',tcm:'黄帝内经',cli:'临床切入',test:'检测方案'};
+  const COLOR_MAP = {fm:'#2a5090',tcm:'#7a4808',cli:'#2a6030',test:'#4a3070'};
+  document.getElementById('ax-cards').innerHTML = ax.entries.map(e => `
+    <div class="card" onclick="openDetail('${e.id}')">
+      <div class="card-top">
+        <span class="badge ${e.type}" style="background:${COLOR_MAP[e.type]}1a;color:${COLOR_MAP[e.type]}">${BADGE_MAP[e.type]}</span>
+        <span class="card-arr">→</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">${e.title}</div>
+        <div class="card-preview">${e.preview}</div>
+      </div>
+    </div>`).join('');
+
+  showView('axis-view');
+  setBreadcrumb([{label:'首页',fn:'goHome()'},{label:ax.zh}]);
+}
+
+function goAxis() {
+  if (currentAxis) openAxis(currentAxis);
+  else goHome();
+}
+
+// ── DETAIL ──
+function openDetail(id) {
+  const entry = findEntry(id);
+  if (!entry) return;
+  currentEntry = id;
+
+  const [axKey, ax] = findAxisForEntry(id);
+  const BADGE_MAP = {fm:'功能医学机制',tcm:'黄帝内经解读',cli:'临床切入点',test:'检测切入点'};
+  const COLOR_MAP = {fm:'#2a5090',tcm:'#7a4808',cli:'#2a6030',test:'#4a3070'};
+
+  const badge = document.getElementById('d-badge');
+  badge.textContent = BADGE_MAP[entry.type];
+  badge.style.background = COLOR_MAP[entry.type]+'1a';
+  badge.style.color = COLOR_MAP[entry.type];
+
+  document.getElementById('d-title').textContent = entry.title;
+  document.getElementById('d-parent').textContent = `所属：${ax.zh}`;
+
+  let html = '';
+  if (entry.illus) {
+    html += `<div class="illus">${entry.illus}<div class="illus-caption">${entry.caption||''}</div>`;
+    if (entry.story) html += `<div class="illus-story">🎯 <strong>小学生版解释：</strong>${entry.story}</div>`;
+    html += `</div>`;
+  }
+  html += entry.content || '';
+  document.getElementById('d-body').innerHTML = html;
+
+  const relDiv = document.getElementById('d-related');
+  if (entry.related && entry.related.length) {
+    const chips = entry.related.map(rid => {
+      const re = findEntry(rid);
+      return re ? `<span class="chip" onclick="openDetail('${rid}')">${re.title}</span>` : '';
+    }).join('');
+    relDiv.innerHTML = `<div class="rel-label">RELATED · 相关知识</div><div class="rel-chips">${chips}</div>`;
+  } else {
+    relDiv.innerHTML = '';
+  }
+
+  showView('detail-view');
+  setBreadcrumb([
+    {label:'首页',fn:'goHome()'},
+    {label:ax.zh,fn:`openAxis('${axKey}')`},
+    {label:entry.title}
+  ]);
+}
+</script>
+</body>
+</html>
